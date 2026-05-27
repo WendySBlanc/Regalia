@@ -29,24 +29,5 @@ class ThemingDelegateImpl : ThemingDelegate {
 }
 
 private val themeResources: Map<AppTheme, Int> = mapOf(
-    AppTheme.MONET to R.style.Theme_Tachiyomi_Monet,
-    AppTheme.CUSTOM to R.style.Theme_Tachiyomi_Custom,
-    AppTheme.CATPPUCCIN to R.style.Theme_Tachiyomi_Catppuccin,
-    AppTheme.GREEN_APPLE to R.style.Theme_Tachiyomi_GreenApple,
-    AppTheme.LAVENDER to R.style.Theme_Tachiyomi_Lavender,
-    AppTheme.MIDNIGHT_DUSK to R.style.Theme_Tachiyomi_MidnightDusk,
-    AppTheme.MONOCHROME to R.style.Theme_Tachiyomi_Monochrome,
-    AppTheme.NORD to R.style.Theme_Tachiyomi_Nord,
-    AppTheme.STRAWBERRY_DAIQUIRI to R.style.Theme_Tachiyomi_StrawberryDaiquiri,
-    AppTheme.TAKO to R.style.Theme_Tachiyomi_Tako,
-    AppTheme.TEALTURQUOISE to R.style.Theme_Tachiyomi_TealTurquoise,
-    AppTheme.YINYANG to R.style.Theme_Tachiyomi_YinYang,
-    AppTheme.YOTSUBA to R.style.Theme_Tachiyomi_Yotsuba,
-    AppTheme.TIDAL_WAVE to R.style.Theme_Tachiyomi_TidalWave,
-    AppTheme.COTTONCANDY to R.style.Theme_Tachiyomi_CottonCandy,
-    AppTheme.MOCHA to R.style.Theme_Tachiyomi_Mocha,
-    AppTheme.CLOUDFLARE to R.style.Theme_Tachiyomi_Cloudflare,
-    AppTheme.SAPPHIRE to R.style.Theme_Tachiyomi_Sapphire,
-    AppTheme.DOOM to R.style.Theme_Tachiyomi_Doom,
-    AppTheme.MATRIX to R.style.Theme_Tachiyomi_Matrix,
+    AppTheme.KOMIKKU to R.style.Theme_Tachiyomi,
 )

@@ -85,28 +85,37 @@ object SettingsMainScreen : Screen() {
     fun Content(twoPane: Boolean) {
         val navigator = LocalNavigator.currentOrThrow
         val backPress = LocalBackPress.currentOrThrow
-        val containerColor = if (twoPane) getPalerSurface() else MaterialTheme.colorScheme.surface
+        // KMK -->
+        val containerColor = if (twoPane) {
+            getPalerSurface()
+        } else {
+            MaterialTheme.colorScheme.background
+        }
+        // KMK <--
         val topBarState = rememberTopAppBarState()
 
         Scaffold(
             topBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topBarState),
             topBar = { scrollBehavior ->
-                AppBar(
-                    title = stringResource(MR.strings.label_settings),
-                    navigateUp = backPress::invoke,
-                    actions = {
-                        AppBarActions(
-                            persistentListOf(
-                                AppBar.Action(
-                                    title = stringResource(MR.strings.action_search),
-                                    icon = Icons.Outlined.Search,
-                                    onClick = { navigator.navigate(SettingsSearchScreen(), twoPane) },
+                CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurface) {
+                    AppBar(
+                        title = stringResource(MR.strings.label_settings),
+                        backgroundColor = MaterialTheme.colorScheme.background.copy(alpha = 0.92f),
+                        navigateUp = backPress::invoke,
+                        actions = {
+                            AppBarActions(
+                                persistentListOf(
+                                    AppBar.Action(
+                                        title = stringResource(MR.strings.action_search),
+                                        icon = Icons.Outlined.Search,
+                                        onClick = { navigator.navigate(SettingsSearchScreen(), twoPane) },
+                                    ),
                                 ),
-                            ),
-                        )
-                    },
-                    scrollBehavior = scrollBehavior,
-                )
+                            )
+                        },
+                        scrollBehavior = scrollBehavior,
+                    )
+                }
             },
             containerColor = containerColor,
             content = { contentPadding ->
@@ -154,6 +163,11 @@ object SettingsMainScreen : Screen() {
                             if (selected) {
                                 contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                             }
+                        } else {
+                            // KMK -->
+                            modifier = Modifier
+                                .padding(horizontal = 20.dp, vertical = 6.dp)
+                            // KMK <--
                         }
                         CompositionLocalProvider(LocalContentColor provides contentColor) {
                             TextPreferenceWidget(

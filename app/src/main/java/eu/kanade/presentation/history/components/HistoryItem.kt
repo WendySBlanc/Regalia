@@ -1,11 +1,15 @@
 package eu.kanade.presentation.history.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.outlined.Delete
@@ -22,6 +26,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -44,9 +49,8 @@ import tachiyomi.i18n.kmk.KMR
 import tachiyomi.presentation.core.components.material.DISABLED_ALPHA
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
-import tachiyomi.presentation.core.util.selectedBackground
 
-private val HistoryItemHeight = 96.dp
+private val HistoryItemHeight = 82.dp
 
 @Composable
 fun HistoryItem(
@@ -74,7 +78,16 @@ fun HistoryItem(
     Row(
         modifier = modifier
             // KMK -->
-            .selectedBackground(selected)
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .clip(RoundedCornerShape(24.dp))
+            .background(
+                if (selected) {
+                    MaterialTheme.colorScheme.primaryContainer
+                } else {
+                    MaterialTheme.colorScheme.surfaceContainerHigh
+                },
+            )
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = {
@@ -83,8 +96,8 @@ fun HistoryItem(
                 },
             )
             // KMK <--
-            .height(HistoryItemHeight)
-            .padding(horizontal = MaterialTheme.padding.medium, vertical = MaterialTheme.padding.small),
+            .heightIn(min = HistoryItemHeight)
+            .padding(start = 12.dp, top = 10.dp, end = 8.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         // KMK -->
@@ -94,7 +107,7 @@ fun HistoryItem(
         val onBgColor = mangaCover.dominantCoverColors?.second
         if (DebugToggles.HIDE_COVER_IMAGE_ONLY_SHOW_COLOR.enabled) {
             MangaCoverHide.Book(
-                modifier = Modifier.fillMaxHeight(),
+                modifier = Modifier.size(width = 52.dp, height = 72.dp),
                 bgColor = bgColor ?: MaterialTheme.colorScheme.surface.takeIf { selected },
                 tint = onBgColor,
                 size = MangaCover.Size.Medium,
@@ -102,7 +115,7 @@ fun HistoryItem(
         } else {
             if (usePanoramaCover && coverIsWide) {
                 MangaCover.Panorama(
-                    modifier = Modifier.fillMaxHeight()
+                    modifier = Modifier.size(width = 92.dp, height = 62.dp)
                         // KMK -->
                         .combinedClickable(
                             onClick = onClickCover,
@@ -126,7 +139,7 @@ fun HistoryItem(
             } else {
                 // KMK <--
                 MangaCover.Book(
-                    modifier = Modifier.fillMaxHeight()
+                    modifier = Modifier.size(width = 52.dp, height = 72.dp)
                         // KMK -->
                         .combinedClickable(
                             onClick = onClickCover,
@@ -162,7 +175,7 @@ fun HistoryItem(
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.titleMedium,
             )
             val readAt = remember { history.readAt?.toTimestampString() ?: "" }
             // KMK -->

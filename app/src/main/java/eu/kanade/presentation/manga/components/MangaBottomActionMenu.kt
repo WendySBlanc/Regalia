@@ -8,7 +8,9 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +24,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Label
@@ -49,6 +52,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalConfiguration
@@ -70,6 +74,7 @@ import tachiyomi.i18n.MR
 import tachiyomi.i18n.kmk.KMR
 import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.i18n.stringResource
+import tachiyomi.presentation.core.util.pressFeedback
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
@@ -92,8 +97,9 @@ fun MangaBottomActionMenu(
         val scope = rememberCoroutineScope()
         Surface(
             modifier = modifier,
-            shape = MaterialTheme.shapes.large.copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize),
-            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            shape = MaterialTheme.shapes.extraLarge.copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize),
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            shadowElevation = 8.dp,
         ) {
             val haptic = LocalHapticFeedback.current
             val confirm = remember { mutableStateListOf(false, false, false, false, false, false, false) }
@@ -114,7 +120,8 @@ fun MangaBottomActionMenu(
                             .only(WindowInsetsSides.Bottom)
                             .asPaddingValues(),
                     )
-                    .padding(horizontal = 8.dp, vertical = 12.dp),
+                    .padding(horizontal = 12.dp, vertical = 14.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 if (onBookmarkClicked != null) {
                     Button(
@@ -203,7 +210,11 @@ internal fun RowScope.Button(
     // KMK -->
     val animatedColor by animateColorAsState(
         if (enabled) {
-            MaterialTheme.colorScheme.onSurface
+            if (toConfirm) {
+                MaterialTheme.colorScheme.onPrimary
+            } else {
+                MaterialTheme.colorScheme.primary
+            }
         } else {
             MaterialTheme.colorScheme.onSurface.copy(
                 alpha = 0.38f,
@@ -211,14 +222,27 @@ internal fun RowScope.Button(
         },
         label = "color",
     )
+    val animatedContainerColor by animateColorAsState(
+        if (toConfirm) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.surfaceContainerHighest
+        },
+        label = "containerColor",
+    )
+    val interactionSource = remember { MutableInteractionSource() }
     // KMK <--
     Box(
         modifier = Modifier
-            .size(48.dp)
+            .size(52.dp)
             .weight(animatedWeight)
+            .clip(RoundedCornerShape(28.dp))
+            .background(animatedContainerColor)
+            .pressFeedback(interactionSource = interactionSource, enabled = enabled)
             .combinedClickable(
-                interactionSource = null,
+                interactionSource = interactionSource,
                 indication = ripple(bounded = false),
+                enabled = enabled,
                 onLongClick = onLongClick,
                 onClick = onClick,
             ),
@@ -284,8 +308,9 @@ fun LibraryBottomActionMenu(
         val scope = rememberCoroutineScope()
         Surface(
             modifier = modifier,
-            shape = MaterialTheme.shapes.large.copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize),
-            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            shape = MaterialTheme.shapes.extraLarge.copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize),
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            shadowElevation = 8.dp,
         ) {
             val haptic = LocalHapticFeedback.current
             val confirm = remember { mutableStateListOf(false, false, false, false, false, false, false) }
@@ -305,7 +330,8 @@ fun LibraryBottomActionMenu(
                         WindowInsets.navigationBars
                             .only(WindowInsetsSides.Bottom),
                     )
-                    .padding(horizontal = 8.dp, vertical = 12.dp),
+                    .padding(horizontal = 12.dp, vertical = 14.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Button(
                     title = stringResource(MR.strings.action_move_category),

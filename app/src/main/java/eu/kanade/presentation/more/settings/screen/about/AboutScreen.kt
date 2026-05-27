@@ -24,7 +24,6 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import eu.kanade.domain.ui.UiPreferences
 import eu.kanade.presentation.components.AppBar
-import eu.kanade.presentation.more.LogoHeader
 import eu.kanade.presentation.more.settings.widget.TextPreferenceWidget
 import eu.kanade.presentation.util.LocalBackPress
 import eu.kanade.presentation.util.Screen
@@ -92,10 +91,6 @@ class AboutScreen : Screen() {
             ScrollbarLazyColumn(
                 contentPadding = contentPadding,
             ) {
-                item {
-                    LogoHeader()
-                }
-
                 item {
                     TextPreferenceWidget(
                         title = stringResource(MR.strings.version),

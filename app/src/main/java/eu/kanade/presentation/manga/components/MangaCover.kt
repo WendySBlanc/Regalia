@@ -3,6 +3,8 @@
 package eu.kanade.presentation.manga.components
 
 import androidx.annotation.ColorInt
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,9 +22,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
@@ -59,7 +63,7 @@ enum class MangaCover(val ratio: Float) {
         data: Any?,
         modifier: Modifier = Modifier,
         contentDescription: String = "",
-        shape: Shape = MaterialTheme.shapes.extraSmall,
+        shape: Shape = MaterialTheme.shapes.small,
         onClick: (() -> Unit)? = null,
         // KMK -->
         alpha: Float = 1f,
@@ -73,13 +77,28 @@ enum class MangaCover(val ratio: Float) {
     ) {
         // KMK -->
         var succeed by remember { mutableStateOf(false) }
+        val coverAlpha by animateFloatAsState(
+            targetValue = if (succeed) alpha else 0.72f,
+            animationSpec = tween(durationMillis = 240),
+            label = "coverAlpha",
+        )
+        val coverScale by animateFloatAsState(
+            targetValue = if (succeed) 1f else 0.985f,
+            animationSpec = tween(durationMillis = 240),
+            label = "coverScale",
+        )
         // KMK <--
 
         val modifierColored = modifier
             .aspectRatio(ratio)
+            .shadow(3.dp, shape, clip = false)
             .clip(shape)
             // KMK -->
-            .alpha(if (succeed) alpha else 1f)
+            .graphicsLayer {
+                scaleX = coverScale
+                scaleY = coverScale
+            }
+            .alpha(coverAlpha)
             .background(bgColor ?: CoverPlaceholderColor)
             // KMK <--
             .then(
@@ -172,7 +191,7 @@ enum class MangaCoverHide(private val ratio: Float) {
     operator fun invoke(
         modifier: Modifier = Modifier,
         contentDescription: String = "",
-        shape: Shape = MaterialTheme.shapes.extraSmall,
+        shape: Shape = MaterialTheme.shapes.small,
         onClick: (() -> Unit)? = null,
         // KMK -->
         /** background color, which used for loading/error indicator */
@@ -183,6 +202,7 @@ enum class MangaCoverHide(private val ratio: Float) {
     ) {
         val modifierColored = modifier
             .aspectRatio(ratio)
+            .shadow(3.dp, shape, clip = false)
             .clip(shape)
             .background(bgColor ?: CoverPlaceholderColor)
             .then(

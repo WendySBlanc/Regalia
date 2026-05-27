@@ -1,7 +1,9 @@
 package eu.kanade.presentation.components
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.FocusInteraction
@@ -17,6 +19,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -54,7 +57,7 @@ fun SuggestionChip(
     icon: @Composable (() -> Unit)? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     elevation: ChipElevation? = SuggestionChipDefaults.suggestionChipElevation(),
-    shape: Shape = MaterialTheme.shapes.small,
+    shape: Shape = RoundedCornerShape(28.dp),
     border: ChipBorder? = SuggestionChipDefaults.suggestionChipBorder(),
     colors: ChipColors = SuggestionChipDefaults.suggestionChipColors(),
 ) = Chip(
@@ -87,7 +90,7 @@ fun SuggestionChip(
     icon: @Composable (() -> Unit)? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     elevation: ChipElevation? = SuggestionChipDefaults.suggestionChipElevation(),
-    shape: Shape = MaterialTheme.shapes.small,
+    shape: Shape = RoundedCornerShape(28.dp),
     border: ChipBorder? = SuggestionChipDefaults.suggestionChipBorder(),
     colors: ChipColors = SuggestionChipDefaults.suggestionChipColors(),
 ) = Chip(
@@ -227,7 +230,10 @@ private fun ChipContent(
         LocalTextStyle provides labelTextStyle,
     ) {
         Row(
-            Modifier.defaultMinSize(minHeight = minHeight).padding(paddingValues),
+            Modifier
+                .defaultMinSize(minHeight = minHeight)
+                .animateContentSize(animationSpec = tween(durationMillis = 180))
+                .padding(paddingValues),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -271,7 +277,7 @@ object SuggestionChipDefaults {
      */
     @Composable
     fun suggestionChipColors(
-        containerColor: Color = Color.Transparent,
+        containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
         labelColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
         iconContentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
         disabledContainerColor: Color = Color.Transparent,
@@ -328,7 +334,7 @@ object SuggestionChipDefaults {
      */
     @Composable
     fun suggestionChipBorder(
-        borderColor: Color = MaterialTheme.colorScheme.outline,
+        borderColor: Color = MaterialTheme.colorScheme.outlineVariant,
         disabledBorderColor: Color = MaterialTheme.colorScheme.onSurface
             .copy(alpha = 0.12f),
         borderWidth: Dp = 1.0.dp,

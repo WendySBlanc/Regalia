@@ -28,7 +28,8 @@ class GetApplicationRelease(
         // KMK -->
         val releases = service.releaseNotes(arguments)
             .filter {
-                !it.preRelease &&
+                !it.draft &&
+                    (arguments.isPreview || !it.preRelease) &&
                     isNewVersion(
                         arguments.isPreview,
                         arguments.commitCount,
@@ -83,12 +84,10 @@ class GetApplicationRelease(
         // Removes prefixes like "r" or "v"
         val newVersion = versionTag.replace("[^\\d.]".toRegex(), "")
         return if (isPreview) {
-            // Preview builds: based on releases in "komikku-app/komikku-preview" repo
-            // tagged as something like "r1234"
-            newVersion.toInt() > commitCount
+            // Preview builds compare against releases tagged as something like "r1234".
+            (newVersion.toIntOrNull() ?: return false) > commitCount
         } else {
-            // Release builds: based on releases in "komikku-app/komikku" repo
-            // tagged as something like "v0.1.2"
+            // Release builds compare against releases tagged as something like "v0.1.2".
             val oldVersion = versionName.replace("[^\\d.]".toRegex(), "")
 
             val newSemVer = newVersion.split(".").map { it.toInt() }

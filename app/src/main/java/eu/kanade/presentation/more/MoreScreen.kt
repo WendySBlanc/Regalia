@@ -3,45 +3,44 @@ package eu.kanade.presentation.more
 import androidx.compose.animation.graphics.res.animatedVectorResource
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ChromeReaderMode
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.automirrored.outlined.Label
 import androidx.compose.material.icons.automirrored.outlined.PlaylistAdd
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.CloudOff
+import androidx.compose.material.icons.outlined.Code
+import androidx.compose.material.icons.outlined.CollectionsBookmark
+import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.GetApp
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.NewReleases
+import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.QueryStats
-import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.Storage
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import eu.kanade.presentation.more.settings.screen.about.AboutScreen
 import eu.kanade.presentation.more.settings.widget.SwitchPreferenceWidget
 import eu.kanade.presentation.more.settings.widget.TextPreferenceWidget
-import eu.kanade.presentation.theme.TachiyomiPreviewTheme
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.ui.more.DownloadQueueState
-import eu.kanade.tachiyomi.util.system.openInBrowser
+import exh.assets.EhAssets
+import exh.assets.ehassets.EhLogo
+import exh.assets.ehassets.MangadexLogo
+import exh.md.utils.MdUtil
 import exh.pref.DelegateSourcePreferences
 import exh.source.ExhPreferences
 import tachiyomi.core.common.Constants
@@ -50,7 +49,6 @@ import tachiyomi.i18n.kmk.KMR
 import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.components.ScrollbarLazyColumn
 import tachiyomi.presentation.core.components.material.Scaffold
-import tachiyomi.presentation.core.components.material.TextButton
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.pluralStringResource
 import tachiyomi.presentation.core.i18n.stringResource
@@ -71,12 +69,22 @@ fun MoreScreen(
     onClickDownloadQueue: () -> Unit,
     onClickCategories: () -> Unit,
     onClickStats: () -> Unit,
-    onClickDataAndStorage: () -> Unit,
-    onClickSettings: () -> Unit,
-    onClickAbout: () -> Unit,
     onClickBatchAdd: () -> Unit,
     onClickUpdates: () -> Unit,
     onClickHistory: () -> Unit,
+    onClickAppearanceSettings: () -> Unit,
+    onClickLibrarySettings: () -> Unit,
+    onClickReaderSettings: () -> Unit,
+    onClickDownloadSettings: () -> Unit,
+    onClickTrackingSettings: () -> Unit,
+    onClickConnectionSettings: () -> Unit,
+    onClickBrowseSettings: () -> Unit,
+    onClickDataSettings: () -> Unit,
+    onClickSecuritySettings: () -> Unit,
+    onClickEhSettings: () -> Unit,
+    onClickMangadexSettings: () -> Unit,
+    onClickAdvancedSettings: () -> Unit,
+    onClickAbout: () -> Unit,
     // KMK -->
     onClickLibraryUpdateErrors: () -> Unit,
     // KMK <--
@@ -85,6 +93,7 @@ fun MoreScreen(
     // SY -->
     val exhPreferences = remember { Injekt.get<ExhPreferences>() }
     val delegateSourcePreferences = remember { Injekt.get<DelegateSourcePreferences>() }
+    val showMangadexSettings = remember { MdUtil.getEnabledMangaDexs(Injekt.get()).isNotEmpty() }
     // SY <--
 
     Scaffold { contentPadding ->
@@ -92,9 +101,6 @@ fun MoreScreen(
             // KMK: use contentPadding as preferable padding for ScrollbarLazyColumn when not using stickyHeader
             contentPadding = contentPadding,
         ) {
-            item {
-                LogoHeader()
-            }
             item {
                 SwitchPreferenceWidget(
                     title = stringResource(MR.strings.label_downloaded_only),
@@ -119,7 +125,7 @@ fun MoreScreen(
                 )
             }
 
-            item { HorizontalDivider() }
+            item { Spacer(modifier = Modifier.height(10.dp)) }
 
             // SY -->
             if (!showNavUpdates) {
@@ -194,13 +200,6 @@ fun MoreScreen(
                 )
             }
             // KMK <--
-            item {
-                TextPreferenceWidget(
-                    title = stringResource(MR.strings.label_data_storage),
-                    icon = Icons.Outlined.Storage,
-                    onPreferenceClick = onClickDataAndStorage,
-                )
-            }
             // SY -->
             if (exhPreferences.isHentaiEnabled().get() || delegateSourcePreferences.delegateSources().get()) {
                 item {
@@ -213,18 +212,114 @@ fun MoreScreen(
             }
             // SY <--
 
-            item { HorizontalDivider() }
+            item { Spacer(modifier = Modifier.height(10.dp)) }
 
             item {
                 TextPreferenceWidget(
-                    title = stringResource(MR.strings.label_settings),
-                    icon = Icons.Outlined.Settings,
-                    onPreferenceClick = onClickSettings,
+                    title = stringResource(MR.strings.pref_category_appearance),
+                    subtitle = stringResource(MR.strings.pref_appearance_summary),
+                    icon = Icons.Outlined.Palette,
+                    onPreferenceClick = onClickAppearanceSettings,
+                )
+            }
+            item {
+                TextPreferenceWidget(
+                    title = stringResource(MR.strings.pref_category_library),
+                    subtitle = stringResource(MR.strings.pref_library_summary),
+                    icon = Icons.Outlined.CollectionsBookmark,
+                    onPreferenceClick = onClickLibrarySettings,
+                )
+            }
+            item {
+                TextPreferenceWidget(
+                    title = stringResource(MR.strings.pref_category_reader),
+                    subtitle = stringResource(MR.strings.pref_reader_summary),
+                    icon = Icons.AutoMirrored.Outlined.ChromeReaderMode,
+                    onPreferenceClick = onClickReaderSettings,
+                )
+            }
+            item {
+                TextPreferenceWidget(
+                    title = stringResource(MR.strings.pref_category_downloads),
+                    subtitle = stringResource(MR.strings.pref_downloads_summary),
+                    icon = Icons.Outlined.GetApp,
+                    onPreferenceClick = onClickDownloadSettings,
+                )
+            }
+            item {
+                TextPreferenceWidget(
+                    title = stringResource(MR.strings.pref_category_tracking),
+                    subtitle = stringResource(MR.strings.pref_tracking_summary),
+                    icon = Icons.Outlined.Sync,
+                    onPreferenceClick = onClickTrackingSettings,
+                )
+            }
+            item {
+                TextPreferenceWidget(
+                    title = stringResource(KMR.strings.pref_category_connections),
+                    subtitle = stringResource(KMR.strings.pref_connections_summary),
+                    icon = Icons.Outlined.Link,
+                    onPreferenceClick = onClickConnectionSettings,
+                )
+            }
+            item {
+                TextPreferenceWidget(
+                    title = stringResource(MR.strings.browse),
+                    subtitle = stringResource(MR.strings.pref_browse_summary),
+                    icon = Icons.Outlined.Explore,
+                    onPreferenceClick = onClickBrowseSettings,
+                )
+            }
+            item {
+                TextPreferenceWidget(
+                    title = stringResource(MR.strings.label_data_storage),
+                    subtitle = stringResource(MR.strings.pref_backup_summary),
+                    icon = Icons.Outlined.Storage,
+                    onPreferenceClick = onClickDataSettings,
+                )
+            }
+            item {
+                TextPreferenceWidget(
+                    title = stringResource(MR.strings.pref_category_security),
+                    subtitle = stringResource(MR.strings.pref_security_summary),
+                    icon = Icons.Outlined.Security,
+                    onPreferenceClick = onClickSecuritySettings,
+                )
+            }
+            // SY -->
+            if (exhPreferences.isHentaiEnabled().get()) {
+                item {
+                    TextPreferenceWidget(
+                        title = stringResource(SYMR.strings.pref_category_eh),
+                        subtitle = stringResource(SYMR.strings.pref_ehentai_summary),
+                        icon = EhAssets.EhLogo,
+                        onPreferenceClick = onClickEhSettings,
+                    )
+                }
+            }
+            if (showMangadexSettings) {
+                item {
+                    TextPreferenceWidget(
+                        title = stringResource(SYMR.strings.pref_category_mangadex),
+                        subtitle = stringResource(SYMR.strings.pref_mangadex_summary),
+                        icon = EhAssets.MangadexLogo,
+                        onPreferenceClick = onClickMangadexSettings,
+                    )
+                }
+            }
+            // SY <--
+            item {
+                TextPreferenceWidget(
+                    title = stringResource(MR.strings.pref_category_advanced),
+                    subtitle = stringResource(MR.strings.pref_advanced_summary),
+                    icon = Icons.Outlined.Code,
+                    onPreferenceClick = onClickAdvancedSettings,
                 )
             }
             item {
                 TextPreferenceWidget(
                     title = stringResource(MR.strings.pref_category_about),
+                    subtitle = "${stringResource(MR.strings.app_name)} ${AboutScreen.getVersionName(withBuildDate = false)}",
                     icon = Icons.Outlined.Info,
                     onPreferenceClick = onClickAbout,
                 )
@@ -236,65 +331,6 @@ fun MoreScreen(
                     onPreferenceClick = { uriHandler.openUri(Constants.URL_HELP) },
                 )
             }
-            // KMK -->
-            item {
-                Sponsor()
-            }
-            // KMK <--
         }
     }
 }
-
-// KMK -->
-@Composable
-fun Sponsor() {
-    val context = LocalContext.current
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = MaterialTheme.padding.medium),
-        horizontalArrangement = Arrangement.Center,
-    ) {
-        TextButton(
-            onClick = { context.openInBrowser(Constants.SPONSOR) },
-            modifier = Modifier
-                .border(
-                    width = 2.dp,
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = MaterialTheme.shapes.small,
-                ),
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Favorite,
-                    contentDescription = stringResource(KMR.strings.sponsor_me),
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-                Spacer(Modifier.width(4.dp))
-                Text(
-                    text = stringResource(KMR.strings.sponsor_me),
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.labelLarge,
-                )
-            }
-        }
-    }
-}
-
-@PreviewLightDark
-@Composable
-private fun SponsorPreview() {
-    TachiyomiPreviewTheme {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth(),
-            color = MaterialTheme.colorScheme.surface,
-            shadowElevation = 0.dp,
-        ) {
-            Sponsor()
-        }
-    }
-}
-// KMK <--

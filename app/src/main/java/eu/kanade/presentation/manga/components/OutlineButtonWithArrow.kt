@@ -37,8 +37,11 @@ fun OutlinedButtonWithArrow(
                 horizontal = MaterialTheme.padding.medium,
                 vertical = MaterialTheme.padding.small,
             ),
-        colors = ButtonDefaults.outlinedButtonColors(),
-        shape = RoundedCornerShape(8.dp),
+        colors = ButtonDefaults.outlinedButtonColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            contentColor = MaterialTheme.colorScheme.primary,
+        ),
+        shape = RoundedCornerShape(18.dp),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

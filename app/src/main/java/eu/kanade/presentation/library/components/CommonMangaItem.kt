@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
@@ -48,7 +50,6 @@ import exh.debug.DebugToggles
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.BadgeGroup
 import tachiyomi.presentation.core.i18n.stringResource
-import tachiyomi.presentation.core.util.selectedBackground
 import tachiyomi.domain.manga.model.MangaCover as MangaCoverModel
 
 object CommonMangaItemDefaults {
@@ -67,6 +68,7 @@ private val ContinueReadingButtonIconSizeLarge = 20.dp
 
 private val ContinueReadingButtonGridPadding = 6.dp
 private val ContinueReadingButtonListSpacing = 8.dp
+private val LibraryCoverShape = RoundedCornerShape(18.dp)
 
 internal const val GRID_SELECTED_COVER_ALPHA = 0.76f
 
@@ -340,6 +342,8 @@ private fun MangaGridCover(
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .shadow(6.dp, LibraryCoverShape)
+            .clip(LibraryCoverShape)
             .aspectRatio(ratio),
     ) {
         cover()
@@ -397,7 +401,7 @@ private fun GridItemSelectable(
 ) {
     Box(
         modifier = modifier
-            .clip(MaterialTheme.shapes.small)
+            .clip(LibraryCoverShape)
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = onLongClick,
@@ -447,57 +451,73 @@ fun MangaListItem(
     // KMK <--
     Row(
         modifier = Modifier
-            .selectedBackground(isSelected)
-            .height(56.dp)
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .clip(RoundedCornerShape(24.dp))
+            .background(
+                if (isSelected) {
+                    MaterialTheme.colorScheme.primaryContainer
+                } else {
+                    MaterialTheme.colorScheme.surfaceContainerHigh
+                },
+            )
+            .heightIn(min = 76.dp)
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = onLongClick,
             )
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(start = 10.dp, top = 10.dp, end = 12.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // KMK -->
-        if (DebugToggles.HIDE_COVER_IMAGE_ONLY_SHOW_COLOR.enabled) {
-            MangaCoverHide.Square(
-                modifier = Modifier
-                    .fillMaxHeight(),
-                bgColor = bgColor ?: MaterialTheme.colorScheme.surface.takeIf { isSelected },
-                tint = onBgColor,
-            )
+        val contentColor = if (isSelected) {
+            MaterialTheme.colorScheme.onPrimaryContainer
         } else {
-            // KMK <--
-            MangaCover.Square(
-                modifier = Modifier
-                    // KMK -->
-                    // .alpha(coverAlpha)
-                    // KMK <--
-                    .fillMaxHeight(),
-                data = coverData,
-                // KMK -->
-                alpha = coverAlpha,
-                bgColor = bgColor ?: MaterialTheme.colorScheme.surface.takeIf { isSelected },
-                tint = onBgColor,
-                size = MangaCover.Size.Big,
-                // KMK <--
-            )
+            MaterialTheme.colorScheme.onSurface
         }
-        Text(
-            text = title,
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .weight(1f),
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.bodyMedium,
-        )
-        BadgeGroup(content = badge)
-        if (onClickContinueReading != null) {
-            ContinueReadingButton(
-                size = ContinueReadingButtonSizeSmall,
-                iconSize = ContinueReadingButtonIconSizeSmall,
-                onClick = onClickContinueReading,
-                modifier = Modifier.padding(start = ContinueReadingButtonListSpacing),
+        CompositionLocalProvider(LocalContentColor provides contentColor) {
+            // KMK -->
+            if (DebugToggles.HIDE_COVER_IMAGE_ONLY_SHOW_COLOR.enabled) {
+                MangaCoverHide.Square(
+                    modifier = Modifier
+                        .size(56.dp),
+                    bgColor = bgColor ?: MaterialTheme.colorScheme.surface.takeIf { isSelected },
+                    tint = onBgColor,
+                )
+            } else {
+                // KMK <--
+                MangaCover.Square(
+                    modifier = Modifier
+                        // KMK -->
+                        // .alpha(coverAlpha)
+                        // KMK <--
+                        .size(56.dp),
+                    data = coverData,
+                    // KMK -->
+                    alpha = coverAlpha,
+                    bgColor = bgColor ?: MaterialTheme.colorScheme.surface.takeIf { isSelected },
+                    tint = onBgColor,
+                    size = MangaCover.Size.Big,
+                    // KMK <--
+                )
+            }
+            Text(
+                text = title,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .weight(1f),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.titleMedium,
             )
+            BadgeGroup(content = badge)
+            if (onClickContinueReading != null) {
+                ContinueReadingButton(
+                    size = ContinueReadingButtonSizeSmall,
+                    iconSize = ContinueReadingButtonIconSizeSmall,
+                    onClick = onClickContinueReading,
+                    modifier = Modifier.padding(start = ContinueReadingButtonListSpacing),
+                )
+            }
         }
     }
 }

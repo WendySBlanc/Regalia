@@ -21,6 +21,19 @@ import eu.kanade.core.preference.asState
 import eu.kanade.domain.base.BasePreferences
 import eu.kanade.domain.ui.UiPreferences
 import eu.kanade.presentation.more.MoreScreen
+import eu.kanade.presentation.more.settings.screen.SettingsAdvancedScreen
+import eu.kanade.presentation.more.settings.screen.SettingsAppearanceScreen
+import eu.kanade.presentation.more.settings.screen.SettingsBrowseScreen
+import eu.kanade.presentation.more.settings.screen.SettingsConnectionScreen
+import eu.kanade.presentation.more.settings.screen.SettingsDataScreen
+import eu.kanade.presentation.more.settings.screen.SettingsDownloadScreen
+import eu.kanade.presentation.more.settings.screen.SettingsEhScreen
+import eu.kanade.presentation.more.settings.screen.SettingsLibraryScreen
+import eu.kanade.presentation.more.settings.screen.SettingsMangadexScreen
+import eu.kanade.presentation.more.settings.screen.SettingsReaderScreen
+import eu.kanade.presentation.more.settings.screen.SettingsSecurityScreen
+import eu.kanade.presentation.more.settings.screen.SettingsTrackingScreen
+import eu.kanade.presentation.more.settings.screen.about.AboutScreen
 import eu.kanade.presentation.util.Tab
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.connections.discord.DiscordRPCService
@@ -30,7 +43,6 @@ import eu.kanade.tachiyomi.ui.category.CategoryScreen
 import eu.kanade.tachiyomi.ui.download.DownloadQueueScreen
 import eu.kanade.tachiyomi.ui.history.HistoryTab
 import eu.kanade.tachiyomi.ui.libraryUpdateError.LibraryUpdateErrorScreen
-import eu.kanade.tachiyomi.ui.setting.SettingsScreen
 import eu.kanade.tachiyomi.ui.stats.StatsScreen
 import eu.kanade.tachiyomi.ui.updates.UpdatesTab
 import exh.ui.batchadd.BatchAddScreen
@@ -61,7 +73,6 @@ data object MoreTab : Tab {
         }
 
     override suspend fun onReselect(navigator: Navigator) {
-        navigator.push(SettingsScreen())
     }
 
     @Composable
@@ -83,14 +94,24 @@ data object MoreTab : Tab {
             onClickDownloadQueue = { navigator.push(DownloadQueueScreen) },
             onClickCategories = { navigator.push(CategoryScreen()) },
             onClickStats = { navigator.push(StatsScreen()) },
-            onClickDataAndStorage = { navigator.push(SettingsScreen(SettingsScreen.Destination.DataAndStorage)) },
-            onClickSettings = { navigator.push(SettingsScreen()) },
-            onClickAbout = { navigator.push(SettingsScreen(SettingsScreen.Destination.About)) },
             // SY -->
             onClickBatchAdd = { navigator.push(BatchAddScreen()) },
             onClickUpdates = { navigator.push(UpdatesTab) },
             onClickHistory = { navigator.push(HistoryTab) },
             // SY <--
+            onClickAppearanceSettings = { navigator.push(SettingsAppearanceScreen) },
+            onClickLibrarySettings = { navigator.push(SettingsLibraryScreen) },
+            onClickReaderSettings = { navigator.push(SettingsReaderScreen) },
+            onClickDownloadSettings = { navigator.push(SettingsDownloadScreen) },
+            onClickTrackingSettings = { navigator.push(SettingsTrackingScreen) },
+            onClickConnectionSettings = { navigator.push(SettingsConnectionScreen) },
+            onClickBrowseSettings = { navigator.push(SettingsBrowseScreen) },
+            onClickDataSettings = { navigator.push(SettingsDataScreen) },
+            onClickSecuritySettings = { navigator.push(SettingsSecurityScreen) },
+            onClickEhSettings = { navigator.push(SettingsEhScreen) },
+            onClickMangadexSettings = { navigator.push(SettingsMangadexScreen) },
+            onClickAdvancedSettings = { navigator.push(SettingsAdvancedScreen) },
+            onClickAbout = { navigator.push(AboutScreen()) },
             // KMK -->
             onClickLibraryUpdateErrors = { navigator.push(LibraryUpdateErrorScreen()) },
             // KMK <--

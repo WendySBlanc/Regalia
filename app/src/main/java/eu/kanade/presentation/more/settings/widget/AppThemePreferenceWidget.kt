@@ -46,8 +46,10 @@ import eu.kanade.domain.ui.UiPreferences
 import eu.kanade.domain.ui.model.AppTheme
 import eu.kanade.presentation.manga.components.MangaCover
 import eu.kanade.presentation.theme.TachiyomiTheme
+import eu.kanade.presentation.theme.colorscheme.KomikkuPopularPalettes
 import tachiyomi.core.common.preference.InMemoryPreferenceStore
 import tachiyomi.i18n.MR
+import tachiyomi.i18n.kmk.KMR
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.secondaryItemAlpha
@@ -58,14 +60,18 @@ import uy.kohesive.injekt.api.fullType
 internal fun AppThemePreferenceWidget(
     value: AppTheme,
     amoled: Boolean,
+    selectedPaletteIndex: Int = 0,
     onItemClick: (AppTheme) -> Unit,
+    onPaletteClick: (Int) -> Unit = {},
 ) {
     BasePreferenceWidget(
         subcomponent = {
             AppThemesList(
                 currentTheme = value,
                 amoled = amoled,
+                selectedPaletteIndex = selectedPaletteIndex,
                 onItemClick = onItemClick,
+                onPaletteClick = onPaletteClick,
             )
         },
     )
@@ -75,53 +81,136 @@ internal fun AppThemePreferenceWidget(
 private fun AppThemesList(
     currentTheme: AppTheme,
     amoled: Boolean,
+    selectedPaletteIndex: Int,
     onItemClick: (AppTheme) -> Unit,
+    onPaletteClick: (Int) -> Unit,
 ) {
     val context = LocalContext.current
     val appThemes = remember {
         AppTheme.entries
             .filterNot { it.titleRes == null }
     }
-    LazyRow(
-        contentPadding = PaddingValues(horizontal = PrefsHorizontalPadding),
-        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
-    ) {
-        items(
-            items = appThemes,
-            key = { "theme-${it.name}" },
-        ) { appTheme ->
-            Column(
-                modifier = Modifier
-                    .width(114.dp)
-                    .padding(top = 8.dp),
-            ) {
-                TachiyomiTheme(
-                    appTheme = appTheme,
-                    amoled = amoled,
+    Column {
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = PrefsHorizontalPadding),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
+        ) {
+            items(
+                items = appThemes,
+                key = { "theme-${it.name}" },
+            ) { appTheme ->
+                Column(
+                    modifier = Modifier
+                        .width(114.dp)
+                        .padding(top = 8.dp),
                 ) {
-                    AppThemePreviewItem(
-                        selected = currentTheme == appTheme,
-                        onClick = {
-                            onItemClick(appTheme)
-                            (context as? Activity)?.let { ActivityCompat.recreate(it) }
-                        },
+                    TachiyomiTheme(
+                        appTheme = appTheme,
+                        amoled = amoled,
+                    ) {
+                        AppThemePreviewItem(
+                            selected = currentTheme == appTheme || currentTheme.titleRes == null,
+                            onClick = {
+                                onItemClick(appTheme)
+                                (context as? Activity)?.let { ActivityCompat.recreate(it) }
+                            },
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = stringResource(appTheme.titleRes!!),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .secondaryItemAlpha(),
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        minLines = 2,
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = stringResource(appTheme.titleRes!!),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .secondaryItemAlpha(),
-                    textAlign = TextAlign.Center,
-                    maxLines = 2,
-                    minLines = 2,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
             }
         }
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        Text(
+            text = stringResource(KMR.strings.pref_komikku_palette_preview),
+            modifier = Modifier
+                .padding(horizontal = PrefsHorizontalPadding)
+                .fillMaxWidth(),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = PrefsHorizontalPadding),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            items(
+                count = KomikkuPopularPalettes.size,
+                key = { index -> "palette-$index" },
+            ) { index ->
+                val palette = KomikkuPopularPalettes[index]
+                val selected = selectedPaletteIndex == index
+                Box(
+                    modifier = Modifier
+                        .width(72.dp)
+                        .height(34.dp)
+                        .border(
+                            width = if (selected) 3.dp else 1.dp,
+                            color = if (selected) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.outlineVariant
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                        )
+                        .padding(3.dp)
+                        .clip(RoundedCornerShape(9.dp))
+                        .clickable { onPaletteClick(index) },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(),
+                    ) {
+                        palette.colors.forEach { color ->
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .weight(1f)
+                                    .background(color),
+                            )
+                        }
+                    }
+                    if (selected) {
+                        Icon(
+                            imageVector = Icons.Filled.CheckCircle,
+                            contentDescription = stringResource(MR.strings.selected),
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(18.dp),
+                        )
+                    }
+                }
+            }
+        }
+
+        Text(
+            text = stringResource(KMR.strings.pref_komikku_palette_preview_summary),
+            modifier = Modifier
+                .padding(
+                    horizontal = PrefsHorizontalPadding,
+                    vertical = 8.dp,
+                )
+                .fillMaxWidth()
+                .secondaryItemAlpha(),
+            style = MaterialTheme.typography.bodySmall,
+        )
     }
 }
 
@@ -258,14 +347,16 @@ fun AppThemePreviewItem(
 @PreviewLightDark
 @Composable
 private fun AppThemesListPreview() {
-    var appTheme by remember { mutableStateOf(AppTheme.DEFAULT) }
+    var appTheme by remember { mutableStateOf(AppTheme.KOMIKKU) }
     Injekt.addSingleton(fullType<UiPreferences>(), UiPreferences(InMemoryPreferenceStore()))
     TachiyomiTheme(appTheme = appTheme) {
         Surface {
             AppThemesList(
                 currentTheme = appTheme,
                 amoled = false,
+                selectedPaletteIndex = 0,
                 onItemClick = { appTheme = it },
+                onPaletteClick = {},
             )
         }
     }

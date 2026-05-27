@@ -3,7 +3,6 @@ package eu.kanade.presentation.reader.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,7 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -32,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
@@ -85,14 +84,13 @@ fun ChapterNavigator(
     val haptic = LocalHapticFeedback.current
 
     // Match with toolbar background color set in ReaderActivity
-    val backgroundColor = MaterialTheme.colorScheme
-        .surfaceColorAtElevation(3.dp)
-        .copy(alpha = if (isSystemInDarkTheme()) 0.9f else 0.95f)
+    val backgroundColor = MaterialTheme.colorScheme.surfaceContainer
+        .copy(alpha = 0.9f)
     val buttonColor = IconButtonDefaults.filledIconButtonColors(
-        containerColor = backgroundColor,
+        containerColor = MaterialTheme.colorScheme.primary,
         disabledContainerColor = backgroundColor,
         // KMK -->
-        contentColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
         // KMK <--
     )
     val textColor = MaterialTheme.colorScheme.onSurface
@@ -123,7 +121,8 @@ fun ChapterNavigator(
                     Row(
                         modifier = Modifier
                             .weight(1f)
-                            .clip(RoundedCornerShape(24.dp))
+                            .shadow(3.dp, RoundedCornerShape(26.dp), clip = false)
+                            .clip(RoundedCornerShape(26.dp))
                             .background(backgroundColor)
                             .padding(horizontal = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -214,14 +213,13 @@ fun ChapterNavigatorVert(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // Match with toolbar background color set in ReaderActivity
-        val backgroundColor = MaterialTheme.colorScheme
-            .surfaceColorAtElevation(3.dp)
-            .copy(alpha = if (isSystemInDarkTheme()) 0.9f else 0.95f)
+        val backgroundColor = MaterialTheme.colorScheme.surfaceContainer
+            .copy(alpha = 0.9f)
         val buttonColor = IconButtonDefaults.filledIconButtonColors(
-            containerColor = backgroundColor,
+            containerColor = MaterialTheme.colorScheme.primary,
             disabledContainerColor = backgroundColor,
             // KMK -->
-            contentColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
             // KMK <--
         )
         val textColor = MaterialTheme.colorScheme.onSurface
@@ -242,7 +240,8 @@ fun ChapterNavigatorVert(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .clip(RoundedCornerShape(24.dp))
+                    .shadow(3.dp, RoundedCornerShape(26.dp), clip = false)
+                    .clip(RoundedCornerShape(26.dp))
                     .background(backgroundColor)
                     .padding(vertical = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,

@@ -4,6 +4,7 @@ import android.app.Activity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -20,7 +21,6 @@ import eu.kanade.domain.ui.model.TabletUiMode
 import eu.kanade.domain.ui.model.ThemeMode
 import eu.kanade.domain.ui.model.setAppCompatDelegateThemeMode
 import eu.kanade.presentation.more.settings.Preference
-import eu.kanade.presentation.more.settings.screen.appearance.AppCustomThemeColorPickerScreen
 import eu.kanade.presentation.more.settings.screen.appearance.AppLanguageScreen
 import eu.kanade.presentation.more.settings.widget.AppThemeModePreferenceWidget
 import eu.kanade.presentation.more.settings.widget.AppThemePreferenceWidget
@@ -67,16 +67,23 @@ object SettingsAppearanceScreen : SearchableSettings {
         uiPreferences: UiPreferences,
     ): Preference.PreferenceGroup {
         val context = LocalContext.current
-        val navigator = LocalNavigator.currentOrThrow
 
         val themeModePref = uiPreferences.themeMode()
         val themeMode by themeModePref.collectAsState()
 
         val appThemePref = uiPreferences.appTheme()
         val appTheme by appThemePref.collectAsState()
+        LaunchedEffect(appTheme) {
+            if (appTheme != AppTheme.KOMIKKU) {
+                appThemePref.set(AppTheme.KOMIKKU)
+            }
+        }
 
         val amoledPref = uiPreferences.themeDarkAmoled()
         val amoled by amoledPref.collectAsState()
+
+        val komikkuThemePalettePref = uiPreferences.komikkuThemePalette()
+        val komikkuThemePalette by komikkuThemePalettePref.collectAsState()
 
         return Preference.PreferenceGroup(
             title = stringResource(MR.strings.pref_category_theme),
@@ -96,51 +103,15 @@ object SettingsAppearanceScreen : SearchableSettings {
                         AppThemePreferenceWidget(
                             value = appTheme,
                             amoled = amoled,
+                            selectedPaletteIndex = komikkuThemePalette,
                             onItemClick = { appThemePref.set(it) },
+                            onPaletteClick = {
+                                komikkuThemePalettePref.set(it)
+                                (context as? Activity)?.let { activity -> ActivityCompat.recreate(activity) }
+                            },
                         )
                     }
                 },
-                // KMK -->
-                Preference.PreferenceItem.TextPreference(
-                    title = stringResource(KMR.strings.pref_custom_color),
-                    subtitle = stringResource(KMR.strings.custom_color_description),
-                    enabled = appTheme == AppTheme.CUSTOM,
-                    onClick = { navigator.push(AppCustomThemeColorPickerScreen()) },
-                ),
-                Preference.PreferenceItem.ListPreference(
-                    preference = uiPreferences.customThemeStyle(),
-                    entries = PaletteStyle.entries
-                        .associateWith {
-                            when (it) {
-                                PaletteStyle.TonalSpot ->
-                                    stringResource(KMR.strings.pref_theme_cover_based_style_tonalspot)
-                                PaletteStyle.Neutral ->
-                                    stringResource(KMR.strings.pref_theme_cover_based_style_neutral)
-                                PaletteStyle.Vibrant ->
-                                    stringResource(KMR.strings.pref_theme_cover_based_style_vibrant)
-                                PaletteStyle.Expressive ->
-                                    stringResource(KMR.strings.pref_theme_cover_based_style_expressive)
-                                PaletteStyle.Rainbow ->
-                                    stringResource(KMR.strings.pref_theme_cover_based_style_rainbow)
-                                PaletteStyle.FruitSalad ->
-                                    stringResource(KMR.strings.pref_theme_cover_based_style_fruitsalad)
-                                PaletteStyle.Monochrome ->
-                                    stringResource(KMR.strings.pref_theme_cover_based_style_monochrome)
-                                PaletteStyle.Fidelity ->
-                                    stringResource(KMR.strings.pref_theme_cover_based_style_fidelity)
-                                PaletteStyle.Content ->
-                                    stringResource(KMR.strings.pref_theme_cover_based_style_content)
-                            }
-                        }
-                        .toImmutableMap(),
-                    title = stringResource(KMR.strings.pref_custom_theme_style),
-                    enabled = appTheme == AppTheme.CUSTOM,
-                    onValueChanged = {
-                        (context as? Activity)?.let { ActivityCompat.recreate(it) }
-                        true
-                    },
-                ),
-                // KMK <--
                 Preference.PreferenceItem.SwitchPreference(
                     preference = amoledPref,
                     title = stringResource(MR.strings.pref_dark_theme_pure_black),

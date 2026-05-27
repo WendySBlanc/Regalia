@@ -26,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -108,11 +109,13 @@ fun SourcesSearchBox(
     }
 
     var isFocused by remember { mutableStateOf(false) }
+    val searchShape = RoundedCornerShape(22.dp)
 
     BasicTextField(
         value = searchQuery ?: "",
         onValueChange = onChangeSearchQuery,
         modifier = modifier
+            .shadow(4.dp, searchShape, clip = false)
             .onGloballyPositioned(onGloballyPositioned)
             .fillMaxWidth()
             .focusRequester(focusRequester)
@@ -156,8 +159,10 @@ fun SourcesSearchBox(
                         onClickClearSearch = onClickClearSearch,
                     )
                 },
-                shape = RoundedCornerShape(24.dp),
+                shape = searchShape,
                 colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     errorIndicatorColor = Color.Transparent,

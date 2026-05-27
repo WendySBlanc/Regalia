@@ -75,7 +75,7 @@ private fun ComingUpdatesScreenPreview() {
                 Foobar
 
                 ### More info
-                [komikku-app/komikku@23d862d17...48fb4a2e6](https://github.com/komikku-app/komikku/compare/23d862d17...48fb4a2e6)
+                [owner/regalia@23d862d17...48fb4a2e6](https://github.com/owner/regalia/compare/23d862d17...48fb4a2e6)
                 - Hello ([@cuong-tran](@https://github.com/cuong-tran))
                 - World
             """.trimIndent(),

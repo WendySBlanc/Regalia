@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,7 +28,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.kevinnzou.web.AccompanistWebViewClient
@@ -152,7 +152,7 @@ fun EhLoginWebViewScreen(
                 Box(
                     Modifier
                         .fillMaxSize()
-                        .background(Color(0xb5000000)),
+                        .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.72f)),
                 ) {
                     Dialog(onDismissRequest = { showAdvancedOptions = false }) {
                         fun loadUrl(url: String) {

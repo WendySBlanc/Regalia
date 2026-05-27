@@ -1,6 +1,8 @@
 package eu.kanade.presentation.reader
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -12,6 +14,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.kanade.presentation.theme.TachiyomiPreviewTheme
 
@@ -40,18 +43,26 @@ fun ReaderPageIndicator(
         drawStyle = Stroke(width = 4f),
     )
 
-    Box(
-        contentAlignment = Alignment.Center,
+    Surface(
         modifier = modifier,
+        shape = RoundedCornerShape(50.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.72f),
+        contentColor = MaterialTheme.colorScheme.primary,
+        shadowElevation = 2.dp,
     ) {
-        Text(
-            text = text,
-            style = strokeStyle,
-        )
-        Text(
-            text = text,
-            style = style,
-        )
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+        ) {
+            Text(
+                text = text,
+                style = strokeStyle,
+            )
+            Text(
+                text = text,
+                style = style,
+            )
+        }
     }
 }
 

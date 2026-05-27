@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
@@ -49,6 +50,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -63,12 +65,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onSizeChanged
@@ -76,6 +79,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withLink
@@ -105,7 +109,6 @@ import tachiyomi.i18n.MR
 import tachiyomi.i18n.kmk.KMR
 import tachiyomi.i18n.sy.SYMR
 import tachiyomi.presentation.core.components.material.DISABLED_ALPHA
-import tachiyomi.presentation.core.components.material.TextButton
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.pluralStringResource
 import tachiyomi.presentation.core.i18n.stringResource
@@ -147,7 +150,7 @@ fun MangaInfoBox(
         // Backdrop
         val backdropGradientColors = listOf(
             Color.Transparent,
-            MaterialTheme.colorScheme.background,
+            MaterialTheme.colorScheme.surfaceContainerLowest,
         )
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
@@ -176,11 +179,11 @@ fun MangaInfoBox(
                     )
                 }
                 // KMK -->
-                .background(MaterialTheme.colorScheme.surfaceTint.copy(alpha = 0.4f))
-                .blur(7.dp)
+                .background(MaterialTheme.colorScheme.surfaceTint.copy(alpha = 0.24f))
+                .blur(4.dp)
                 // .blur(4.dp)
                 // KMK <--
-                .alpha(0.2f),
+                .alpha(0.24f),
         )
 
         // Manga & source info
@@ -276,7 +279,10 @@ fun MangaActionRow(
         }
     }
 
-    Row(modifier = modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp)) {
+    Row(
+        modifier = modifier.padding(start = 16.dp, top = 10.dp, end = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
         MangaActionButton(
             title = if (favorite) {
                 stringResource(MR.strings.in_library)
@@ -368,82 +374,119 @@ fun ExpandableMangaDescription(
     val uiPreferences = Injekt.get<UiPreferences>()
     val pureDarkMode = uiPreferences.themeDarkAmoled().get()
     // KMK <--
-    Column(modifier = modifier) {
-        val (expanded, onExpanded) = rememberSaveable {
-            mutableStateOf(defaultExpandState)
-        }
-        val desc =
-            description.takeIf { !it.isNullOrBlank() } ?: stringResource(MR.strings.description_placeholder)
+    Surface(
+        modifier = modifier
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(28.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        tonalElevation = 0.dp,
+        shadowElevation = 0.dp,
+    ) {
+        Column(
+            modifier = Modifier.padding(vertical = 14.dp),
+        ) {
+            val (expanded, onExpanded) = rememberSaveable {
+                mutableStateOf(defaultExpandState)
+            }
+            val desc =
+                description.takeIf { !it.isNullOrBlank() } ?: stringResource(MR.strings.description_placeholder)
 
-        MangaSummary(
-            description = desc,
-            expanded = expanded,
-            notes = notes,
-            onEditNotesClicked = onEditNotes,
-            modifier = Modifier
-                .padding(top = 8.dp)
-                .padding(horizontal = 16.dp)
-                .clickableNoIndication { onExpanded(!expanded) },
-        )
-        val tags = tagsProvider()
-        if (!tags.isNullOrEmpty()) {
-            Box(
+            Text(
+                text = "Synopsis",
+                modifier = Modifier.padding(horizontal = 16.dp),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+
+            MangaSummary(
+                description = desc,
+                expanded = expanded,
+                notes = notes,
+                onEditNotesClicked = onEditNotes,
                 modifier = Modifier
                     .padding(top = 8.dp)
-                    .padding(vertical = 12.dp)
-                    .animateContentSize(animationSpec = spring())
-                    .fillMaxWidth(),
-            ) {
-                var showMenu by remember { mutableStateOf(false) }
-                var tagSelected by remember { mutableStateOf("") }
-                DropdownMenu(
-                    expanded = showMenu,
-                    onDismissRequest = { showMenu = false },
+                    .padding(horizontal = 16.dp)
+                    .clickableNoIndication { onExpanded(!expanded) },
+            )
+            val tags = tagsProvider()
+            if (!tags.isNullOrEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .padding(vertical = 12.dp)
+                        .animateContentSize(animationSpec = spring())
+                        .fillMaxWidth(),
                 ) {
-                    DropdownMenuItem(
-                        text = { Text(text = stringResource(MR.strings.action_search)) },
-                        onClick = {
-                            onTagSearch(tagSelected)
-                            showMenu = false
-                        },
-                    )
-                    // SY -->
-                    DropdownMenuItem(
-                        text = { Text(text = stringResource(MR.strings.action_global_search)) },
-                        onClick = {
-                            doSearch(tagSelected, true)
-                            showMenu = false
-                        },
-                    )
-                    // SY <--
-                    DropdownMenuItem(
-                        text = { Text(text = stringResource(MR.strings.action_copy_to_clipboard)) },
-                        onClick = {
-                            onCopyTagToClipboard(tagSelected)
-                            showMenu = false
-                        },
-                    )
-                }
-                if (expanded) {
-                    // SY -->
-                    if (searchMetadataChips != null) {
-                        NamespaceTags(
-                            tags = searchMetadataChips,
+                    var showMenu by remember { mutableStateOf(false) }
+                    var tagSelected by remember { mutableStateOf("") }
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(MR.strings.action_search)) },
                             onClick = {
-                                tagSelected = it
-                                showMenu = true
+                                onTagSearch(tagSelected)
+                                showMenu = false
                             },
-                            // KMK -->
-                            pureDarkMode = pureDarkMode,
-                            // KMK <--
                         )
-                    } else {
+                        // SY -->
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(MR.strings.action_global_search)) },
+                            onClick = {
+                                doSearch(tagSelected, true)
+                                showMenu = false
+                            },
+                        )
                         // SY <--
-                        FlowRow(
-                            modifier = Modifier.padding(horizontal = 16.dp),
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(MR.strings.action_copy_to_clipboard)) },
+                            onClick = {
+                                onCopyTagToClipboard(tagSelected)
+                                showMenu = false
+                            },
+                        )
+                    }
+                    if (expanded) {
+                        // SY -->
+                        if (searchMetadataChips != null) {
+                            NamespaceTags(
+                                tags = searchMetadataChips,
+                                onClick = {
+                                    tagSelected = it
+                                    showMenu = true
+                                },
+                                // KMK -->
+                                pureDarkMode = pureDarkMode,
+                                // KMK <--
+                            )
+                        } else {
+                            // SY <--
+                            FlowRow(
+                                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
+                            ) {
+                                tags.forEach {
+                                    TagsChip(
+                                        modifier = DefaultTagChipModifier,
+                                        text = it,
+                                        onClick = {
+                                            tagSelected = it
+                                            showMenu = true
+                                        },
+                                        // KMK -->
+                                        pureDarkMode = pureDarkMode,
+                                        // KMK <--
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        LazyRow(
+                            contentPadding = PaddingValues(horizontal = 0.dp),
                             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
                         ) {
-                            tags.forEach {
+                            items(items = tags) {
                                 TagsChip(
                                     modifier = DefaultTagChipModifier,
                                     text = it,
@@ -456,25 +499,6 @@ fun ExpandableMangaDescription(
                                     // KMK <--
                                 )
                             }
-                        }
-                    }
-                } else {
-                    LazyRow(
-                        contentPadding = PaddingValues(horizontal = MaterialTheme.padding.medium),
-                        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
-                    ) {
-                        items(items = tags) {
-                            TagsChip(
-                                modifier = DefaultTagChipModifier,
-                                text = it,
-                                onClick = {
-                                    tagSelected = it
-                                    showMenu = true
-                                },
-                                // KMK -->
-                                pureDarkMode = pureDarkMode,
-                                // KMK <--
-                            )
                         }
                     }
                 }
@@ -598,6 +622,7 @@ private fun MangaAndSourceTitlesSmall(
             MangaCover.Panorama(
                 modifier = Modifier
                     .sizeIn(maxHeight = 100.dp)
+                    .shadow(8.dp, RoundedCornerShape(8.dp))
                     // KMK -->
                     .align(if (topAlignCover) Alignment.Top else Alignment.CenterVertically),
                 // KMK <--
@@ -620,6 +645,7 @@ private fun MangaAndSourceTitlesSmall(
             MangaCover.Book(
                 modifier = Modifier
                     .sizeIn(maxWidth = 100.dp)
+                    .shadow(8.dp, RoundedCornerShape(8.dp))
                     // KMK -->
                     .align(if (topAlignCover) Alignment.Top else Alignment.CenterVertically),
                 // KMK <--
@@ -681,6 +707,24 @@ private fun ColumnScope.MangaContentInfo(
     // KMK <--
 ) {
     val context = LocalContext.current
+    val statusLabel = when (status) {
+        SManga.ONGOING.toLong() -> stringResource(MR.strings.ongoing)
+        SManga.COMPLETED.toLong() -> stringResource(MR.strings.completed)
+        SManga.LICENSED.toLong() -> stringResource(MR.strings.licensed)
+        SManga.PUBLISHING_FINISHED.toLong() -> stringResource(MR.strings.publishing_finished)
+        SManga.CANCELLED.toLong() -> stringResource(MR.strings.cancelled)
+        SManga.ON_HIATUS.toLong() -> stringResource(MR.strings.on_hiatus)
+        else -> stringResource(MR.strings.unknown)
+    }
+    val statusIcon = when (status) {
+        SManga.ONGOING.toLong() -> Icons.Outlined.Schedule
+        SManga.COMPLETED.toLong() -> Icons.Outlined.DoneAll
+        SManga.LICENSED.toLong() -> Icons.Outlined.AttachMoney
+        SManga.PUBLISHING_FINISHED.toLong() -> Icons.Outlined.Done
+        SManga.CANCELLED.toLong() -> Icons.Outlined.Close
+        SManga.ON_HIATUS.toLong() -> Icons.Outlined.Pause
+        else -> Icons.Outlined.Block
+    }
     // KMK -->
     var showMenu by remember { mutableStateOf(false) }
     var tagSelected by remember { mutableStateOf("") }
@@ -732,6 +776,35 @@ private fun ColumnScope.MangaContentInfo(
     )
 
     Spacer(modifier = Modifier.height(2.dp))
+
+    FlowRow(
+        modifier = Modifier.padding(top = 6.dp, bottom = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        MangaHeroPill(
+            text = statusLabel,
+            icon = statusIcon,
+            emphasized = true,
+        )
+        MangaHeroPill(
+            text = sourceName,
+            icon = if (isStubSource) Icons.Filled.Warning else Icons.Outlined.Public,
+            emphasized = false,
+            onLongClick = {
+                tagSelected = sourceName
+                showMenu = true
+            },
+            onClick = onSourceClick,
+        )
+        if (isSourceIncognito) {
+            MangaHeroPill(
+                text = stringResource(MR.strings.pref_incognito_mode),
+                icon = ImageVector.vectorResource(R.drawable.ic_glasses_with_hat_24dp),
+                emphasized = false,
+            )
+        }
+    }
 
     Row(
         modifier = Modifier.secondaryItemAlpha(),
@@ -791,83 +864,58 @@ private fun ColumnScope.MangaContentInfo(
             )
         }
     }
+}
 
-    Spacer(modifier = Modifier.height(2.dp))
-
+@Composable
+private fun MangaHeroPill(
+    text: String,
+    icon: ImageVector,
+    emphasized: Boolean,
+    onLongClick: (() -> Unit)? = null,
+    onClick: (() -> Unit)? = null,
+) {
+    val shape = RoundedCornerShape(50.dp)
+    val containerColor = if (emphasized) {
+        MaterialTheme.colorScheme.primaryContainer
+    } else {
+        MaterialTheme.colorScheme.surfaceContainerHigh
+    }
+    val contentColor = if (emphasized) {
+        MaterialTheme.colorScheme.onPrimaryContainer
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
     Row(
-        modifier = Modifier.secondaryItemAlpha(),
+        modifier = Modifier
+            .clip(shape)
+            .background(containerColor)
+            .then(
+                if (onClick != null) {
+                    Modifier.clickableNoIndication(
+                        onLongClick = onLongClick,
+                        onClick = onClick,
+                    )
+                } else {
+                    Modifier
+                },
+            )
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            imageVector = when (status) {
-                SManga.ONGOING.toLong() -> Icons.Outlined.Schedule
-                SManga.COMPLETED.toLong() -> Icons.Outlined.DoneAll
-                SManga.LICENSED.toLong() -> Icons.Outlined.AttachMoney
-                SManga.PUBLISHING_FINISHED.toLong() -> Icons.Outlined.Done
-                SManga.CANCELLED.toLong() -> Icons.Outlined.Close
-                SManga.ON_HIATUS.toLong() -> Icons.Outlined.Pause
-                else -> Icons.Outlined.Block
-            },
+            imageVector = icon,
             contentDescription = null,
-            modifier = Modifier
-                .padding(end = 4.dp)
-                .size(16.dp),
+            modifier = Modifier.size(14.dp),
+            tint = contentColor,
         )
-        ProvideTextStyle(MaterialTheme.typography.bodyMedium) {
-            Text(
-                text = when (status) {
-                    SManga.ONGOING.toLong() -> stringResource(MR.strings.ongoing)
-                    SManga.COMPLETED.toLong() -> stringResource(MR.strings.completed)
-                    SManga.LICENSED.toLong() -> stringResource(MR.strings.licensed)
-                    SManga.PUBLISHING_FINISHED.toLong() -> stringResource(MR.strings.publishing_finished)
-                    SManga.CANCELLED.toLong() -> stringResource(MR.strings.cancelled)
-                    SManga.ON_HIATUS.toLong() -> stringResource(MR.strings.on_hiatus)
-                    else -> stringResource(MR.strings.unknown)
-                },
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1,
-            )
-            // KMK -->
-            if (isSourceIncognito) {
-                DotSeparatorText()
-                Icon(
-                    painter = rememberVectorPainter(ImageVector.vectorResource(R.drawable.ic_glasses_with_hat_24dp)),
-                    contentDescription = stringResource(MR.strings.pref_incognito_mode),
-                    modifier = Modifier
-                        .padding(end = 4.dp)
-                        .size(16.dp),
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-            }
-            // KMK <--
-            DotSeparatorText()
-            if (isStubSource) {
-                Icon(
-                    imageVector = Icons.Filled.Warning,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(end = 4.dp)
-                        .size(16.dp),
-                    tint = MaterialTheme.colorScheme.error,
-                )
-            }
-            Text(
-                text = sourceName,
-                modifier = Modifier.clickableNoIndication(
-                    // KMK -->
-                    onLongClick = {
-                        tagSelected = sourceName
-                        showMenu = true
-                    },
-                    onClick = {
-                        onSourceClick()
-                    },
-                    // KMK <--
-                ),
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1,
-            )
-        }
+        Text(
+            text = text,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.labelMedium,
+            color = contentColor,
+        )
     }
 }
 
@@ -1018,17 +1066,21 @@ private fun RowScope.MangaActionButton(
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
 ) {
-    TextButton(
-        onClick = onClick,
-        modifier = Modifier.weight(1f),
-        onLongClick = onLongClick,
+    Box(
+        modifier = Modifier
+            .weight(1f)
+            .clip(RoundedCornerShape(28.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .clickableNoIndication(onLongClick = onLongClick, onClick = onClick)
+            .padding(horizontal = 8.dp, vertical = 14.dp),
+        contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
                 tint = color,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(24.dp),
             )
             Spacer(Modifier.height(4.dp))
             Text(

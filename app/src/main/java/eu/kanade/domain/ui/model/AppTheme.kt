@@ -1,38 +1,40 @@
 package eu.kanade.domain.ui.model
 
 import dev.icerock.moko.resources.StringResource
-import tachiyomi.i18n.MR
 import tachiyomi.i18n.kmk.KMR
 
 enum class AppTheme(val titleRes: StringResource?) {
-    DEFAULT(MR.strings.label_default),
-    MONET(MR.strings.theme_monet),
+    KOMIKKU(KMR.strings.theme_komikku_2026),
+
+    // Legacy themes kept for preference compatibility. They now resolve to the Komikku theme.
+    DEFAULT(null),
+    MONET(null),
 
     // Kuukiyomi themes
-    CUSTOM(KMR.strings.theme_custom),
+    CUSTOM(null),
 
     // Aniyomi themes
-    COTTONCANDY(KMR.strings.theme_cottoncandy),
-    MOCHA(KMR.strings.theme_mocha),
+    COTTONCANDY(null),
+    MOCHA(null),
 
-    CATPPUCCIN(MR.strings.theme_catppuccin),
-    GREEN_APPLE(MR.strings.theme_greenapple),
-    LAVENDER(MR.strings.theme_lavender),
-    MIDNIGHT_DUSK(MR.strings.theme_midnightdusk),
-    NORD(MR.strings.theme_nord),
-    STRAWBERRY_DAIQUIRI(MR.strings.theme_strawberrydaiquiri),
-    TAKO(MR.strings.theme_tako),
-    TEALTURQUOISE(MR.strings.theme_tealturquoise),
-    TIDAL_WAVE(MR.strings.theme_tidalwave),
-    YINYANG(MR.strings.theme_yinyang),
-    YOTSUBA(MR.strings.theme_yotsuba),
-    MONOCHROME(MR.strings.theme_monochrome),
+    CATPPUCCIN(null),
+    GREEN_APPLE(null),
+    LAVENDER(null),
+    MIDNIGHT_DUSK(null),
+    NORD(null),
+    STRAWBERRY_DAIQUIRI(null),
+    TAKO(null),
+    TEALTURQUOISE(null),
+    TIDAL_WAVE(null),
+    YINYANG(null),
+    YOTSUBA(null),
+    MONOCHROME(null),
 
     // Aniyomi themes
-    CLOUDFLARE(KMR.strings.theme_cloudflare),
-    DOOM(KMR.strings.theme_doom),
-    MATRIX(KMR.strings.theme_matrix),
-    SAPPHIRE(KMR.strings.theme_sapphire),
+    CLOUDFLARE(null),
+    DOOM(null),
+    MATRIX(null),
+    SAPPHIRE(null),
 
     // Deprecated
     DARK_BLUE(null),

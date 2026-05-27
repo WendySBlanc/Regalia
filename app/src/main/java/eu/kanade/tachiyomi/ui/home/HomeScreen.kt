@@ -7,7 +7,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
@@ -16,7 +15,6 @@ import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -58,7 +56,6 @@ import soup.compose.material.motion.animation.materialFadeThroughIn
 import soup.compose.material.motion.animation.materialFadeThroughOut
 import tachiyomi.domain.library.service.LibraryPreferences
 import tachiyomi.i18n.MR
-import tachiyomi.presentation.core.components.material.NavigationBar
 import tachiyomi.presentation.core.components.material.NavigationRail
 import tachiyomi.presentation.core.components.material.Scaffold
 import tachiyomi.presentation.core.i18n.pluralStringResource
@@ -124,15 +121,23 @@ object HomeScreen : Screen() {
                                 enter = expandVertically(),
                                 exit = shrinkVertically(),
                             ) {
-                                NavigationBar {
-                                    TABS
-                                        // SY -->
-                                        .fastFilter { it.isEnabled() }
-                                        // SY <--
-                                        .fastForEach {
-                                            NavigationBarItem(it/* SY --> */, alwaysShowLabel/* SY <-- */)
-                                        }
-                                }
+                                val enabledTabs = TABS
+                                    // SY -->
+                                    .fastFilter { it.isEnabled() }
+                                // SY <--
+                                val selectedIndex = enabledTabs
+                                    .indexOfFirst { it::class == tabNavigator.current::class }
+                                    .coerceAtLeast(0)
+                                FloatingNavigationBar(
+                                    tabs = enabledTabs,
+                                    selectedIndex = selectedIndex,
+                                    // SY -->
+                                    alwaysShowLabel = alwaysShowLabel,
+                                    // SY <--
+                                    onSelect = { i -> tabNavigator.current = enabledTabs[i] },
+                                    onReselect = { i -> scope.launch { enabledTabs[i].onReselect(navigator) } },
+                                    badge = { tab -> NavBarBadge(tab) },
+                                )
                             }
                         }
                     },
@@ -210,39 +215,6 @@ object HomeScreen : Screen() {
     }
 
     @Composable
-    private fun RowScope.NavigationBarItem(
-        tab: eu.kanade.presentation.util.Tab,
-        // SY -->
-        alwaysShowLabel: Boolean,
-        // SY <--
-    ) {
-        val tabNavigator = LocalTabNavigator.current
-        val navigator = LocalNavigator.currentOrThrow
-        val scope = rememberCoroutineScope()
-        val selected = tabNavigator.current::class == tab::class
-        NavigationBarItem(
-            selected = selected,
-            onClick = {
-                if (!selected) {
-                    tabNavigator.current = tab
-                } else {
-                    scope.launch { tab.onReselect(navigator) }
-                }
-            },
-            icon = { NavigationIconItem(tab) },
-            label = {
-                Text(
-                    text = tab.options.title,
-                    style = MaterialTheme.typography.labelLarge,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            },
-            alwaysShowLabel = /* SY --> */alwaysShowLabel, /* SY <-- */
-        )
-    }
-
-    @Composable
     fun NavigationRailItem(
         tab: eu.kanade.presentation.util.Tab,
         // SY -->
@@ -278,52 +250,7 @@ object HomeScreen : Screen() {
     @Composable
     private fun NavigationIconItem(tab: eu.kanade.presentation.util.Tab) {
         BadgedBox(
-            badge = {
-                when {
-                    tab is UpdatesTab -> {
-                        val count by produceState(initialValue = 0) {
-                            val pref = Injekt.get<LibraryPreferences>()
-                            combine(
-                                pref.newShowUpdatesCount().changes(),
-                                pref.newUpdatesCount().changes(),
-                            ) { show, count -> if (show) count else 0 }
-                                .collectLatest { value = it }
-                        }
-                        if (count > 0) {
-                            Badge {
-                                val desc = pluralStringResource(
-                                    MR.plurals.notification_chapters_generic,
-                                    count = count,
-                                    count,
-                                )
-                                Text(
-                                    text = count.toString(),
-                                    modifier = Modifier.semantics { contentDescription = desc },
-                                )
-                            }
-                        }
-                    }
-                    BrowseTab::class.isInstance(tab) -> {
-                        val count by produceState(initialValue = 0) {
-                            Injekt.get<SourcePreferences>().extensionUpdatesCount().changes()
-                                .collectLatest { value = it }
-                        }
-                        if (count > 0) {
-                            Badge {
-                                val desc = pluralStringResource(
-                                    MR.plurals.update_check_notification_ext_updates,
-                                    count = count,
-                                    count,
-                                )
-                                Text(
-                                    text = count.toString(),
-                                    modifier = Modifier.semantics { contentDescription = desc },
-                                )
-                            }
-                        }
-                    }
-                }
-            },
+            badge = { NavBarBadge(tab) },
         ) {
             Icon(
                 painter = tab.options.icon!!,
@@ -331,6 +258,54 @@ object HomeScreen : Screen() {
                 // TODO: https://issuetracker.google.com/u/0/issues/316327367
                 tint = LocalContentColor.current,
             )
+        }
+    }
+
+    @Composable
+    internal fun NavBarBadge(tab: eu.kanade.presentation.util.Tab) {
+        when {
+            tab is UpdatesTab -> {
+                val count by produceState(initialValue = 0) {
+                    val pref = Injekt.get<LibraryPreferences>()
+                    combine(
+                        pref.newShowUpdatesCount().changes(),
+                        pref.newUpdatesCount().changes(),
+                    ) { show, count -> if (show) count else 0 }
+                        .collectLatest { value = it }
+                }
+                if (count > 0) {
+                    Badge {
+                        val desc = pluralStringResource(
+                            MR.plurals.notification_chapters_generic,
+                            count = count,
+                            count,
+                        )
+                        Text(
+                            text = count.toString(),
+                            modifier = Modifier.semantics { contentDescription = desc },
+                        )
+                    }
+                }
+            }
+            BrowseTab::class.isInstance(tab) -> {
+                val count by produceState(initialValue = 0) {
+                    Injekt.get<SourcePreferences>().extensionUpdatesCount().changes()
+                        .collectLatest { value = it }
+                }
+                if (count > 0) {
+                    Badge {
+                        val desc = pluralStringResource(
+                            MR.plurals.update_check_notification_ext_updates,
+                            count = count,
+                            count,
+                        )
+                        Text(
+                            text = count.toString(),
+                            modifier = Modifier.semantics { contentDescription = desc },
+                        )
+                    }
+                }
+            }
         }
     }
 

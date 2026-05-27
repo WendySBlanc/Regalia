@@ -71,7 +71,7 @@ private val defaultContent: @Composable RowScope.(
             // KMK <--
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.titleMedium,
         )
         // KMK -->
         Row(

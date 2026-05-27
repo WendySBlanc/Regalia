@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun NavigationRail(
     modifier: Modifier = Modifier,
-    containerColor: Color = NavigationRailDefaults.ContainerColor,
+    containerColor: Color = MaterialTheme.colorScheme.background.copy(alpha = 0.94f),
     contentColor: Color = contentColorFor(containerColor),
     header: @Composable (ColumnScope.() -> Unit)? = null,
     windowInsets: WindowInsets = NavigationRailDefaults.windowInsets,
@@ -38,18 +38,19 @@ fun NavigationRail(
         color = containerColor,
         contentColor = contentColor,
         modifier = modifier,
-        tonalElevation = 3.dp,
+        tonalElevation = 0.dp,
+        shadowElevation = 6.dp,
     ) {
         Column(
             Modifier
                 .fillMaxHeight()
                 .windowInsetsPadding(windowInsets)
-                .widthIn(min = 80.dp)
-                .padding(vertical = MaterialTheme.padding.extraSmall)
+                .widthIn(min = 88.dp)
+                .padding(vertical = MaterialTheme.padding.small)
                 .selectableGroup(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(
-                MaterialTheme.padding.extraSmall,
+                MaterialTheme.padding.small,
                 alignment = Alignment.CenterVertically,
             ),
         ) {

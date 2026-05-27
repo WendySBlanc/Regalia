@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import eu.kanade.domain.ui.UiPreferences
@@ -83,6 +84,7 @@ fun MangaToolbar(
     // KMK <--
 
     val isActionMode = actionModeCounter > 0
+    val backgroundAlpha = backgroundAlphaProvider()
     AppBar(
         titleContent = {
             if (isActionMode) {
@@ -92,9 +94,13 @@ fun MangaToolbar(
             }
         },
         modifier = modifier,
-        backgroundColor = MaterialTheme.colorScheme
-            .surfaceColorAtElevation(3.dp)
-            .copy(alpha = if (isActionMode) 1f else backgroundAlphaProvider()),
+        backgroundColor = if (!isActionMode && backgroundAlpha <= 0.04f) {
+            Color.Transparent
+        } else {
+            MaterialTheme.colorScheme
+                .surfaceColorAtElevation(3.dp)
+                .copy(alpha = if (isActionMode) 1f else backgroundAlpha)
+        },
         // KMK -->
         goHome = { onHomeClicked() }.takeIf {
             isHomeEnabled &&

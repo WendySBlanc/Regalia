@@ -14,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import eu.kanade.presentation.more.settings.LocalPreferenceHighlighted
 import eu.kanade.presentation.track.components.TrackLogoIcon
@@ -54,7 +53,7 @@ fun TrackingPreferenceWidget(
                     modifier = Modifier
                         .padding(4.dp)
                         .size(32.dp),
-                    tint = Color(0xFF4CAF50),
+                    tint = MaterialTheme.colorScheme.tertiary,
                     contentDescription = stringResource(MR.strings.login_success),
                 )
             }

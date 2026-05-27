@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import eu.kanade.domain.source.model.installedExtension
@@ -57,7 +58,6 @@ import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.screens.EmptyScreen
 import tachiyomi.presentation.core.screens.LoadingScreen
-import tachiyomi.presentation.core.theme.header
 import tachiyomi.source.local.LocalSource
 import tachiyomi.source.local.isLocal
 
@@ -183,8 +183,14 @@ private fun SourceHeader(
         },
         // SY <--
         modifier = modifier
-            .padding(horizontal = MaterialTheme.padding.medium, vertical = MaterialTheme.padding.small),
-        style = MaterialTheme.typography.header,
+            .padding(
+                start = MaterialTheme.padding.large,
+                top = MaterialTheme.padding.medium,
+                end = MaterialTheme.padding.large,
+                bottom = MaterialTheme.padding.small,
+            ),
+        fontWeight = FontWeight.Bold,
+        style = MaterialTheme.typography.titleLarge,
     )
 }
 

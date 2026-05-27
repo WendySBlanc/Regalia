@@ -66,6 +66,9 @@
     <string name="put_related_mangas_in_overflow_summary">Put the Suggestions button in the overflow menu instead of on the entry page</string>
     <string name="pref_show_home_on_related_mangas">Home from Suggestions</string>
     <string name="pref_show_home_on_related_mangas_summary">Show an icon while browsing Suggestions to navigate directly back to Home</string>
+    <string name="theme_komikku_2026">Regalia 2026</string>
+    <string name="pref_komikku_palette_preview">30 palettes, 4 colors</string>
+    <string name="pref_komikku_palette_preview_summary">Pick a palette; the full app theme adapts to its warm, dark, pastel, or cold colors.</string>
     <string name="theme_cloudflare">Cloudflare</string>
     <string name="theme_cottoncandy">Cotton Candy</string>
     <string name="theme_doom">Doom</string>
@@ -223,7 +226,7 @@
     <string name="discord_status_scrolling">Scrolling through</string>
     <string name="discord_status_messing">Messing around with</string>
     <string name="discord_download_button">Read on %s</string>
-    <string name="discord_app_description">Komikku - a manga reader app</string>
+    <string name="discord_app_description">Regalia - a manga reader app</string>
     <!-- Discord RPC Customization -->
     <string name="pref_category_discord_customization">Discord Customization</string>
     <string name="pref_discord_custom_message">Custom Message</string>
