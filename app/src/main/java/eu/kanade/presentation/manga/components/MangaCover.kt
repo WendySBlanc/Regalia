@@ -3,15 +3,13 @@
 package eu.kanade.presentation.manga.components
 
 import androidx.annotation.ColorInt
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,18 +20,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImagePainter
-import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.AsyncImage
 import eu.kanade.presentation.manga.components.MangaCover.Companion.COVER_TEMPLATE_SIZE_BIG
 import eu.kanade.presentation.manga.components.MangaCover.Companion.COVER_TEMPLATE_SIZE_MEDIUM
 import eu.kanade.presentation.manga.components.MangaCover.Companion.COVER_TEMPLATE_SIZE_NORMAL
@@ -75,32 +71,13 @@ enum class MangaCover(val ratio: Float) {
         scale: ContentScale = ContentScale.Crop,
         // KMK <--
     ) {
-        // KMK -->
-        var succeed by remember { mutableStateOf(false) }
-        val coverAlpha by animateFloatAsState(
-            targetValue = if (succeed) alpha else 0.72f,
-            animationSpec = tween(durationMillis = 240),
-            label = "coverAlpha",
-        )
-        val coverScale by animateFloatAsState(
-            targetValue = if (succeed) 1f else 0.985f,
-            animationSpec = tween(durationMillis = 240),
-            label = "coverScale",
-        )
-        // KMK <--
+        var showError by remember(data) { mutableStateOf(false) }
 
         val modifierColored = modifier
             .aspectRatio(ratio)
-            .shadow(3.dp, shape, clip = false)
             .clip(shape)
-            // KMK -->
-            .graphicsLayer {
-                scaleX = coverScale
-                scaleY = coverScale
-            }
-            .alpha(coverAlpha)
+            .alpha(alpha)
             .background(bgColor ?: CoverPlaceholderColor)
-            // KMK <--
             .then(
                 if (onClick != null) {
                     Modifier.clickable(
@@ -112,67 +89,55 @@ enum class MangaCover(val ratio: Float) {
                 },
             )
 
-        SubcomposeAsyncImage(
-            model = data,
-            // KMK -->
-            loading = {
-                Box(
-                    modifier = modifierColored,
-                ) {
-                    CircularProgressIndicator(
-                        color = tint?.let { Color(it) } ?: CoverPlaceholderOnBgColor,
-                        modifier = Modifier
-                            .size(
-                                when (size) {
-                                    Size.Big -> COVER_TEMPLATE_SIZE_BIG
-                                    Size.Medium -> COVER_TEMPLATE_SIZE_MEDIUM
-                                    else -> COVER_TEMPLATE_SIZE_NORMAL
-                                },
-                            )
-                            .align(Alignment.Center),
-                        strokeWidth = when (size) {
-                            Size.Normal -> 3.dp
-                            else -> 2.dp
-                        },
-                    )
-                }
-            },
-            error = {
-                Box(
-                    modifier = modifierColored,
-                ) {
-                    Image(
-                        imageVector = ImageVector.vectorResource(R.drawable.cover_error_vector),
-                        contentDescription = contentDescription,
-                        modifier = Modifier
-                            .size(
-                                when (size) {
-                                    Size.Big -> COVER_TEMPLATE_SIZE_BIG
-                                    Size.Medium -> COVER_TEMPLATE_SIZE_MEDIUM
-                                    else -> COVER_TEMPLATE_SIZE_NORMAL
-                                },
-                            )
-                            .align(Alignment.Center),
-                        colorFilter = ColorFilter.tint(
-                            tint?.let { Color(it) } ?: CoverPlaceholderOnBgColor,
-                        ),
-                    )
-                }
-            },
-            onSuccess = { result ->
-                succeed = true
-                if (onCoverLoaded != null) {
+        Box(modifier = modifierColored) {
+            AsyncImage(
+                model = data,
+                contentDescription = contentDescription,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = scale,
+                onLoading = {
+                    showError = false
+                },
+                onSuccess = { result ->
+                    showError = false
                     when (data) {
-                        is Manga -> onCoverLoaded(data.asMangaCover(), result)
-                        is DomainMangaCover -> onCoverLoaded(data, result)
+                        is Manga -> data.asMangaCover()
+                        is DomainMangaCover -> data
+                        else -> null
+                    }?.let { mangaCover ->
+                        val image = result.result.image
+                        if (image.width > 0 && image.height > 0) {
+                            mangaCover.ratio = image.width.toFloat() / image.height
+                        }
+                        if (onCoverLoaded != null) {
+                            onCoverLoaded(mangaCover, result)
+                        }
                     }
-                }
-            },
-            // KMK <--
-            contentDescription = contentDescription,
-            modifier = modifierColored,
-            contentScale = scale,
-        )
+                },
+                onError = {
+                    showError = true
+                },
+            )
+
+            if (showError) {
+                Image(
+                    imageVector = ImageVector.vectorResource(R.drawable.cover_error_vector),
+                    contentDescription = contentDescription,
+                    modifier = Modifier
+                        .size(
+                            when (size) {
+                                Size.Big -> COVER_TEMPLATE_SIZE_BIG
+                                Size.Medium -> COVER_TEMPLATE_SIZE_MEDIUM
+                                else -> COVER_TEMPLATE_SIZE_NORMAL
+                            },
+                        )
+                        .align(Alignment.Center),
+                    colorFilter = ColorFilter.tint(
+                        tint?.let { Color(it) } ?: CoverPlaceholderOnBgColor,
+                    ),
+                )
+            }
+        }
     }
 
     companion object {
@@ -202,7 +167,6 @@ enum class MangaCoverHide(private val ratio: Float) {
     ) {
         val modifierColored = modifier
             .aspectRatio(ratio)
-            .shadow(3.dp, shape, clip = false)
             .clip(shape)
             .background(bgColor ?: CoverPlaceholderColor)
             .then(

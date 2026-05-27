@@ -220,7 +220,9 @@ fun MangaComfortableGridItem(
     onClickContinueReading: (() -> Unit)? = null,
     // KMK -->
     libraryColored: Boolean = true,
-    coverRatio: MutableFloatState = remember { mutableFloatStateOf(1f) },
+    coverRatio: MutableFloatState = remember(coverData.mangaId) {
+        mutableFloatStateOf(coverData.ratio?.let { 1f / it } ?: 1f)
+    },
     usePanoramaCover: Boolean,
     fitToPanoramaCover: Boolean = false,
     // KMK <--

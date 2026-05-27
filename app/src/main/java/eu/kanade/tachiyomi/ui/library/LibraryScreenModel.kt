@@ -515,6 +515,7 @@ class LibraryScreenModel(
         // KMK -->
         val filterFnCategories: (LibraryItem) -> Boolean = categories@{ item ->
             if (!filterCategories) return@categories true
+            if (includedCategories.isEmpty() && excludedCategories.isEmpty()) return@categories true
 
             val mangaCategories = item.libraryManga.categories.fastFilterNot { it == 0L }.toSet()
 
@@ -632,10 +633,13 @@ class LibraryScreenModel(
         }
         // SY <--
 
+        val sortTitleCache = HashMap<Long, String>()
+        fun LibraryItem.sortTitle(): String {
+            return sortTitleCache.getOrPut(id) { libraryManga.manga.title.lowercase() }
+        }
+
         val sortAlphabetically: (LibraryItem, LibraryItem) -> Int = { manga1, manga2 ->
-            val title1 = manga1.libraryManga.manga.title.lowercase()
-            val title2 = manga2.libraryManga.manga.title.lowercase()
-            title1.compareToWithCollator(title2)
+            manga1.sortTitle().compareToWithCollator(manga2.sortTitle())
         }
 
         val defaultTrackerScoreSortValue = -1.0
@@ -648,6 +652,15 @@ class LibraryScreenModel(
                         entry.value
                             .mapNotNull { trackerMap[it.trackerId]?.get10PointScore(it) }
                             .average()
+                }
+            }
+        }
+
+        val tagSortIndexCache = HashMap<Long, Int>()
+        fun LibraryItem.tagSortIndex(): Int {
+            return tagSortIndexCache.getOrPut(id) {
+                listOfTags.indexOfFirst { tag ->
+                    libraryManga.manga.genre?.contains(tag) ?: false
                 }
             }
         }
@@ -695,13 +708,7 @@ class LibraryScreenModel(
                 }
                 // SY -->
                 LibrarySort.Type.TagList -> {
-                    val manga1IndexOfTag = listOfTags.indexOfFirst {
-                        manga1.libraryManga.manga.genre?.contains(it) ?: false
-                    }
-                    val manga2IndexOfTag = listOfTags.indexOfFirst {
-                        manga2.libraryManga.manga.genre?.contains(it) ?: false
-                    }
-                    manga1IndexOfTag.compareTo(manga2IndexOfTag)
+                    manga1.tagSortIndex().compareTo(manga2.tagSortIndex())
                 }
                 // SY <--
             }
@@ -784,7 +791,7 @@ class LibraryScreenModel(
             libraryManga.map { manga ->
                 // Display mode based on user preference: take it from global library setting or category
                 // KMK -->
-                val source = sourceManager.getOrStub(manga.manga.source)
+                val source by lazy { sourceManager.getOrStub(manga.manga.source) }
                 // KMK <--
                 LibraryItem(
                     libraryManga = manga,

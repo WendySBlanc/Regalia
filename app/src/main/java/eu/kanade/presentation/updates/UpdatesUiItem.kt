@@ -147,12 +147,7 @@ internal fun LazyListScope.updatesUiItems(
                 val isLeader = item is UpdatesUiModel.Leader
                 val isExpanded = expandedState.contains(updatesItem.update.groupByDateAndManga())
 
-                AnimatedVisibility(
-                    visible = isLeader || isExpanded,
-                    enter = fadeIn() + expandVertically(),
-                    exit = fadeOut() + shrinkVertically(),
-                ) {
-                    // KMK <--
+                val updateItemContent: @Composable () -> Unit = {
                     UpdatesUiItem(
                         modifier = Modifier.animateItemFastScroll(),
                         update = updatesItem.update,
@@ -220,6 +215,19 @@ internal fun LazyListScope.updatesUiItems(
                         // KMK <--
                     )
                 }
+
+                if (isLeader) {
+                    updateItemContent()
+                } else {
+                    AnimatedVisibility(
+                        visible = isExpanded,
+                        enter = fadeIn() + expandVertically(),
+                        exit = fadeOut() + shrinkVertically(),
+                    ) {
+                        updateItemContent()
+                    }
+                }
+                // KMK <--
             }
         }
     }
@@ -249,7 +257,9 @@ private fun UpdatesUiItem(
     // KMK <--
     modifier: Modifier = Modifier,
     // KMK -->
-    coverRatio: MutableFloatState = remember { mutableFloatStateOf(1f) },
+    coverRatio: MutableFloatState = remember(update.mangaId) {
+        mutableFloatStateOf(update.coverData.ratio?.let { 1f / it } ?: 1f)
+    },
     // KMK <--
 ) {
     val haptic = LocalHapticFeedback.current

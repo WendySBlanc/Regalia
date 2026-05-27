@@ -68,7 +68,9 @@ fun HistoryItem(
     readProgress: String?,
     hasUnread: Boolean,
     usePanoramaCover: Boolean,
-    coverRatio: MutableFloatState = remember { mutableFloatStateOf(1f) },
+    coverRatio: MutableFloatState = remember(history.mangaId) {
+        mutableFloatStateOf(history.coverData.ratio?.let { 1f / it } ?: 1f)
+    },
     // KMK <--
 ) {
     // KMK -->
