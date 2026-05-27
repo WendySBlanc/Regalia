@@ -3,7 +3,7 @@ import mihon.buildlogic.getBuildTime
 import mihon.buildlogic.getCommitCount
 import mihon.buildlogic.getGitSha
 
-val updateRepository = System.getenv("GITHUB_REPOSITORY") ?: "komikku-app/komikku"
+val updateRepository = System.getenv("GITHUB_REPOSITORY") ?: "WendySBlanc/Regalia"
 
 plugins {
     id("mihon.android.application")
@@ -30,7 +30,7 @@ android {
     defaultConfig {
         applicationId = "app.komikku"
 
-        versionCode = 79
+        versionCode = getCommitCount().toInt()
         versionName = "1.13.6"
 
         buildConfigField("String", "COMMIT_COUNT", "\"${getCommitCount()}\"")

@@ -47,10 +47,10 @@ class AppUpdateJob(private val context: Context, workerParams: WorkerParameters)
                 .build()
 
             val request = PeriodicWorkRequestBuilder<AppUpdateJob>(
-                3,
-                TimeUnit.DAYS,
-                3,
-                TimeUnit.HOURS,
+                15,
+                TimeUnit.MINUTES,
+                15,
+                TimeUnit.MINUTES,
             )
                 .addTag(TAG)
                 .setConstraints(constraints)

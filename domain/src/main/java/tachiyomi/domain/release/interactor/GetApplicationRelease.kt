@@ -19,8 +19,8 @@ class GetApplicationRelease(
     suspend fun await(arguments: Arguments): Result {
         val now = Instant.now()
 
-        // Limit checks to once every 3 days at most
-        val nextCheckTime = Instant.ofEpochMilli(lastChecked.get()).plus(2, ChronoUnit.DAYS)
+        // Limit checks to once every 15 minutes at most.
+        val nextCheckTime = Instant.ofEpochMilli(lastChecked.get()).plus(15, ChronoUnit.MINUTES)
         if (!arguments.forceCheck && now.isBefore(nextCheckTime)) {
             return Result.NoNewUpdate
         }
@@ -29,7 +29,7 @@ class GetApplicationRelease(
         val releases = service.releaseNotes(arguments)
             .filter {
                 !it.draft &&
-                    (arguments.isPreview || !it.preRelease) &&
+                    it.preRelease == arguments.isPreview &&
                     isNewVersion(
                         arguments.isPreview,
                         arguments.commitCount,
@@ -81,27 +81,38 @@ class GetApplicationRelease(
         versionName: String,
         versionTag: String,
     ): Boolean {
-        // Removes prefixes like "r" or "v"
-        val newVersion = versionTag.replace("[^\\d.]".toRegex(), "")
-        return if (isPreview) {
-            // Preview builds compare against releases tagged as something like "r1234".
-            (newVersion.toIntOrNull() ?: return false) > commitCount
-        } else {
-            // Release builds compare against releases tagged as something like "v0.1.2".
-            val oldVersion = versionName.replace("[^\\d.]".toRegex(), "")
-
-            val newSemVer = newVersion.split(".").map { it.toInt() }
-            val oldSemVer = oldVersion.split(".").map { it.toInt() }
-
-            oldSemVer.mapIndexed { index, i ->
-                if (newSemVer[index] > i) {
-                    return true
-                }
-                if (newSemVer[index] < i) return false
-            }
-
-            false
+        val releaseCommitCount = releaseCommitCountRegex.find(versionTag)
+            ?.groupValues
+            ?.get(1)
+            ?.toIntOrNull()
+        if (releaseCommitCount != null) {
+            return releaseCommitCount > commitCount
         }
+
+        if (isPreview) {
+            return false
+        }
+
+        // Release builds compare against releases tagged as something like "v0.1.2".
+        val newSemVer = versionTag
+            .substringBefore("-")
+            .replace("[^\\d.]".toRegex(), "")
+            .split(".")
+            .mapNotNull { it.toIntOrNull() }
+        val oldSemVer = versionName
+            .substringBefore("-")
+            .replace("[^\\d.]".toRegex(), "")
+            .split(".")
+            .mapNotNull { it.toIntOrNull() }
+
+        for (index in 0 until maxOf(newSemVer.size, oldSemVer.size)) {
+            val newVersionPart = newSemVer.getOrElse(index) { 0 }
+            val oldVersionPart = oldSemVer.getOrElse(index) { 0 }
+            if (newVersionPart > oldVersionPart) return true
+            if (newVersionPart < oldVersionPart) return false
+        }
+
+        return false
     }
 
     data class Arguments(
@@ -126,6 +137,9 @@ class GetApplicationRelease(
 }
 
 // KMK --.
+private val releaseCommitCountRegex = """(?:^|[-_])r(\d+)(?:$|[-_.])"""
+    .toRegex(RegexOption.IGNORE_CASE)
+
 internal fun List<Release>.getLatest(): Release? {
     return firstOrNull()
         ?.copy(

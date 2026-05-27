@@ -1,0 +1,145 @@
+name: Android Auto Update
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '**'
+      - '!**.md'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: Build and publish update
+    runs-on: 'ubuntu-24.04'
+
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Prepare release metadata
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          commit_count=$(git rev-list --count HEAD)
+          short_sha=$(git rev-parse --short HEAD)
+          tag_name="auto-r${commit_count}"
+
+          echo "COMMIT_COUNT=$commit_count" >> "$GITHUB_OUTPUT"
+          echo "SHORT_SHA=$short_sha" >> "$GITHUB_OUTPUT"
+          echo "TAG_NAME=$tag_name" >> "$GITHUB_OUTPUT"
+
+      - name: Check signing secrets
+        shell: bash
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          ALIAS: ${{ secrets.ALIAS }}
+          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          missing=()
+          [ -n "$SIGNING_KEY" ] || missing+=("SIGNING_KEY")
+          [ -n "$ALIAS" ] || missing+=("ALIAS")
+          [ -n "$KEY_STORE_PASSWORD" ] || missing+=("KEY_STORE_PASSWORD")
+          [ -n "$KEY_PASSWORD" ] || missing+=("KEY_PASSWORD")
+
+          if [ "${#missing[@]}" -ne 0 ]; then
+            printf 'Missing GitHub Actions signing secrets: %s\n' "${missing[*]}"
+            printf 'Add them once in the repository settings before Android can install automatic updates.\n'
+            exit 1
+          fi
+
+      - name: Set up JDK
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Set up gradle
+        uses: gradle/actions/setup-gradle@f29f5a9d7b09a7c6b29859002d29d24e1674c884 # v5
+
+      - name: Check code format
+        run: ./gradlew spotlessCheck
+
+      - name: Build release app
+        run: ./gradlew assembleRelease -Penable-updater
+
+      - name: Run unit tests
+        id: unit_tests
+        run: ./gradlew testReleaseUnitTest
+
+      - name: Upload test report
+        if: failure() && steps.unit_tests.outcome == 'failure'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: test-report-${{ github.sha }}
+          path: app/build/reports/tests/testReleaseUnitTest
+
+      - name: Sign APK
+        uses: r0adkll/sign-android-release@f30bdd30588842ac76044ecdbd4b6d0e3e813478
+        with:
+          releaseDirectory: app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+          alias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+        env:
+          BUILD_TOOLS_VERSION: '35.0.1'
+
+      - name: Rename APKs
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tag_name="${{ steps.meta.outputs.TAG_NAME }}"
+          mv app/build/outputs/apk/release/app-universal-release-unsigned-signed.apk "Regalia-${tag_name}.apk"
+          mv app/build/outputs/apk/release/app-arm64-v8a-release-unsigned-signed.apk "Regalia-arm64-v8a-${tag_name}.apk"
+          mv app/build/outputs/apk/release/app-armeabi-v7a-release-unsigned-signed.apk "Regalia-armeabi-v7a-${tag_name}.apk"
+          mv app/build/outputs/apk/release/app-x86-release-unsigned-signed.apk "Regalia-x86-${tag_name}.apk"
+          mv app/build/outputs/apk/release/app-x86_64-release-unsigned-signed.apk "Regalia-x86_64-${tag_name}.apk"
+
+      - name: Create tag
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tag_name="${{ steps.meta.outputs.TAG_NAME }}"
+          if git ls-remote --exit-code --tags origin "refs/tags/${tag_name}" > /dev/null 2>&1; then
+            echo "Tag ${tag_name} already exists"
+          else
+            git tag "${tag_name}"
+            git push origin "${tag_name}"
+          fi
+
+      - name: Create latest release
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
+        with:
+          tag_name: ${{ steps.meta.outputs.TAG_NAME }}
+          name: Regalia ${{ steps.meta.outputs.TAG_NAME }}
+          body: |
+            Automatic Android update from `${{ steps.meta.outputs.SHORT_SHA }}`.
+
+            Install this APK once, then Regalia will check this repository for newer `auto-r...` releases.
+          files: |
+            Regalia-${{ steps.meta.outputs.TAG_NAME }}.apk
+            Regalia-arm64-v8a-${{ steps.meta.outputs.TAG_NAME }}.apk
+            Regalia-armeabi-v7a-${{ steps.meta.outputs.TAG_NAME }}.apk
+            Regalia-x86-${{ steps.meta.outputs.TAG_NAME }}.apk
+            Regalia-x86_64-${{ steps.meta.outputs.TAG_NAME }}.apk
+          draft: false
+          prerelease: false
+          make_latest: true
+          token: ${{ secrets.GITHUB_TOKEN }}
