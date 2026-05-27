@@ -4,7 +4,6 @@ import android.app.Activity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -16,7 +15,6 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.materialkolor.PaletteStyle
 import eu.kanade.core.preference.asState
 import eu.kanade.domain.ui.UiPreferences
-import eu.kanade.domain.ui.model.AppTheme
 import eu.kanade.domain.ui.model.TabletUiMode
 import eu.kanade.domain.ui.model.ThemeMode
 import eu.kanade.domain.ui.model.setAppCompatDelegateThemeMode
@@ -73,17 +71,9 @@ object SettingsAppearanceScreen : SearchableSettings {
 
         val appThemePref = uiPreferences.appTheme()
         val appTheme by appThemePref.collectAsState()
-        LaunchedEffect(appTheme) {
-            if (appTheme != AppTheme.KOMIKKU) {
-                appThemePref.set(AppTheme.KOMIKKU)
-            }
-        }
 
         val amoledPref = uiPreferences.themeDarkAmoled()
         val amoled by amoledPref.collectAsState()
-
-        val komikkuThemePalettePref = uiPreferences.komikkuThemePalette()
-        val komikkuThemePalette by komikkuThemePalettePref.collectAsState()
 
         return Preference.PreferenceGroup(
             title = stringResource(MR.strings.pref_category_theme),
@@ -103,12 +93,7 @@ object SettingsAppearanceScreen : SearchableSettings {
                         AppThemePreferenceWidget(
                             value = appTheme,
                             amoled = amoled,
-                            selectedPaletteIndex = komikkuThemePalette,
                             onItemClick = { appThemePref.set(it) },
-                            onPaletteClick = {
-                                komikkuThemePalettePref.set(it)
-                                (context as? Activity)?.let { activity -> ActivityCompat.recreate(activity) }
-                            },
                         )
                     }
                 },

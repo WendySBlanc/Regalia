@@ -17,46 +17,54 @@ internal data class KomikkuPopularPalette(
     val primary: Color,
     val secondary: Color,
     val tertiary: Color,
-    val neutral: Color,
 ) {
     val colors: List<Color>
-        get() = listOf(primary, secondary, tertiary, neutral)
+        get() = listOf(primary, secondary, tertiary)
 }
 
 // KMK -->
-// 30 Coolors-style popular palettes, grouped into warm, dark, pastel, and cold moods.
-// Each palette intentionally uses 4 colors: primary, secondary, tertiary, and neutral/surface.
+// Popular 3-color palettes from Coolors, promoted to full app themes.
 internal val KomikkuPopularPalettes = listOf(
-    palette(KomikkuPaletteMood.DARK, "#B8CBFF", "#7D2E59", "#F0B9D2", "#0C1020"),
-    palette(KomikkuPaletteMood.WARM, "#606C38", "#283618", "#DDA15E", "#FEFAE0"),
-    palette(KomikkuPaletteMood.WARM, "#780000", "#C1121F", "#669BBC", "#FDF0D5"),
-    palette(KomikkuPaletteMood.WARM, "#582F0E", "#7F4F24", "#A68A64", "#B6AD90"),
-    palette(KomikkuPaletteMood.WARM, "#6F1D1B", "#BB9457", "#99582A", "#FFE6A7"),
-    palette(KomikkuPaletteMood.WARM, "#8E3200", "#A64B2A", "#D7A86E", "#FFEBC1"),
-    palette(KomikkuPaletteMood.WARM, "#CB997E", "#DDBEA9", "#6B705C", "#FFE8D6"),
-    palette(KomikkuPaletteMood.WARM, "#F94144", "#F3722C", "#F9C74F", "#90BE6D"),
-    palette(KomikkuPaletteMood.DARK, "#5BC0BE", "#3A506B", "#6FFFE9", "#0B132B"),
-    palette(KomikkuPaletteMood.DARK, "#C9ADA7", "#9A8C98", "#4A4E69", "#22223B"),
-    palette(KomikkuPaletteMood.DARK, "#7B2CBF", "#5A189A", "#C77DFF", "#10002B"),
-    palette(KomikkuPaletteMood.DARK, "#778DA9", "#415A77", "#E0E1DD", "#0D1B2A"),
-    palette(KomikkuPaletteMood.DARK, "#BA181B", "#A4161A", "#E5383B", "#161A1D"),
-    palette(KomikkuPaletteMood.DARK, "#DC2F02", "#9D0208", "#FFBA08", "#03071E"),
-    palette(KomikkuPaletteMood.DARK, "#FCA311", "#E5E5E5", "#8D99AE", "#14213D"),
-    palette(KomikkuPaletteMood.PASTEL, "#CCD5AE", "#E9EDC9", "#D4A373", "#FEFAE0"),
-    palette(KomikkuPaletteMood.PASTEL, "#CDB4DB", "#FFAFCC", "#A2D2FF", "#BDE0FE"),
-    palette(KomikkuPaletteMood.PASTEL, "#FFC4D6", "#FFA6C1", "#FF87AB", "#FADDE1"),
-    palette(KomikkuPaletteMood.PASTEL, "#D8E2DC", "#FFCAD4", "#9D8189", "#FFE5D9"),
-    palette(KomikkuPaletteMood.PASTEL, "#B8F2E6", "#AED9E0", "#FFA69E", "#FAF3DD"),
-    palette(KomikkuPaletteMood.PASTEL, "#D6CCC2", "#E3D5CA", "#D5BDAF", "#F5EBE0"),
-    palette(KomikkuPaletteMood.PASTEL, "#FEC5BB", "#FCD5CE", "#E8E8E4", "#FAE1DD"),
-    palette(KomikkuPaletteMood.PASTEL, "#CDB4DB", "#FFC8DD", "#BDE0FE", "#A2D2FF"),
-    palette(KomikkuPaletteMood.COLD, "#0077B6", "#00B4D8", "#90E0EF", "#CAF0F8"),
-    palette(KomikkuPaletteMood.COLD, "#006D77", "#83C5BE", "#E29578", "#EDF6F9"),
-    palette(KomikkuPaletteMood.COLD, "#023E8A", "#0096C7", "#48CAE4", "#ADE8F4"),
-    palette(KomikkuPaletteMood.COLD, "#355070", "#6D597A", "#E56B6F", "#EAAC8B"),
-    palette(KomikkuPaletteMood.COLD, "#22577A", "#38A3A5", "#57CC99", "#C7F9CC"),
-    palette(KomikkuPaletteMood.COLD, "#05668D", "#028090", "#02C39A", "#F0F3BD"),
-    palette(KomikkuPaletteMood.COLD, "#2B2D42", "#8D99AE", "#EF233C", "#EDF2F4"),
+    palette(KomikkuPaletteMood.COLD, "#0D3B66", "#FAF0CA", "#F4D35E"),
+    palette(KomikkuPaletteMood.DARK, "#F6F7EB", "#E94F37", "#393E41"),
+    palette(KomikkuPaletteMood.PASTEL, "#DCE0D9", "#FBF6EF", "#EAD7C3"),
+    palette(KomikkuPaletteMood.COLD, "#006D77", "#83C5BE", "#EDF6F9"),
+    palette(KomikkuPaletteMood.WARM, "#ED6A5A", "#F4F1BB", "#9BC1BC"),
+    palette(KomikkuPaletteMood.DARK, "#2B2D42", "#8D99AE", "#EDF2F4"),
+    palette(KomikkuPaletteMood.WARM, "#FE218B", "#FED700", "#21B0FE"),
+    palette(KomikkuPaletteMood.DARK, "#1E1E24", "#92140C", "#FFF8F0"),
+    palette(KomikkuPaletteMood.WARM, "#606C38", "#283618", "#FEFAE0"),
+    palette(KomikkuPaletteMood.COLD, "#064789", "#427AA1", "#EBF2FA"),
+    palette(KomikkuPaletteMood.WARM, "#F4F1DE", "#E07A5F", "#3D405B"),
+    palette(KomikkuPaletteMood.WARM, "#26547C", "#EF476F", "#FFD166"),
+    palette(KomikkuPaletteMood.DARK, "#0C1618", "#004643", "#FAF4D3"),
+    palette(KomikkuPaletteMood.PASTEL, "#DDFFF7", "#93E1D8", "#FFA69E"),
+    palette(KomikkuPaletteMood.PASTEL, "#9381FF", "#B8B8FF", "#F8F7FF"),
+    palette(KomikkuPaletteMood.DARK, "#0B132B", "#1C2541", "#3A506B"),
+    palette(KomikkuPaletteMood.COLD, "#233D4D", "#FE7F2D", "#FCCA46"),
+    palette(KomikkuPaletteMood.WARM, "#EDAE49", "#D1495B", "#00798C"),
+    palette(KomikkuPaletteMood.WARM, "#CB997E", "#DDBEA9", "#FFE8D6"),
+    palette(KomikkuPaletteMood.COLD, "#F1F7ED", "#243E36", "#7CA982"),
+    palette(KomikkuPaletteMood.PASTEL, "#84FFC9", "#AAB2FF", "#ECA0FF"),
+    palette(KomikkuPaletteMood.DARK, "#FBF5F3", "#E28413", "#000022"),
+    palette(KomikkuPaletteMood.WARM, "#540D6E", "#EE4266", "#FFD23F"),
+    palette(KomikkuPaletteMood.DARK, "#000000", "#FF0000", "#FFE100"),
+    palette(KomikkuPaletteMood.WARM, "#F6511D", "#FFB400", "#00A6ED"),
+    palette(KomikkuPaletteMood.PASTEL, "#FAF3DD", "#C8D5B9", "#8FC0A9"),
+    palette(KomikkuPaletteMood.COLD, "#264653", "#2A9D8F", "#E9C46A"),
+    palette(KomikkuPaletteMood.DARK, "#003049", "#D62828", "#F77F00"),
+    palette(KomikkuPaletteMood.WARM, "#FB8B24", "#D90368", "#820263"),
+    palette(KomikkuPaletteMood.WARM, "#DD6E42", "#E8DAB2", "#4F6D7A"),
+    palette(KomikkuPaletteMood.COLD, "#092327", "#0B5351", "#00A9A5"),
+    palette(KomikkuPaletteMood.DARK, "#F72585", "#7209B7", "#3A0CA3"),
+    palette(KomikkuPaletteMood.PASTEL, "#F3B391", "#F6D4BA", "#FEFADC"),
+    palette(KomikkuPaletteMood.WARM, "#FFBA49", "#20A39E", "#EF5B5B"),
+    palette(KomikkuPaletteMood.PASTEL, "#C9CBA3", "#FFE1A8", "#E26D5C"),
+    palette(KomikkuPaletteMood.PASTEL, "#F1E0C5", "#C9B79C", "#71816D"),
+    palette(KomikkuPaletteMood.WARM, "#FE4A49", "#FED766", "#009FB7"),
+    palette(KomikkuPaletteMood.PASTEL, "#D9F0FF", "#A3D5FF", "#83C9F4"),
+    palette(KomikkuPaletteMood.DARK, "#191716", "#E6AF2E", "#E0E2DB"),
+    palette(KomikkuPaletteMood.WARM, "#FFBE0B", "#FB5607", "#FF006E"),
 )
 
 internal object KomikkuPopularColorScheme : BaseColorScheme() {
@@ -170,21 +178,20 @@ private fun palette(
     primary: String,
     secondary: String,
     tertiary: String,
-    neutral: String,
 ) = KomikkuPopularPalette(
     mood = mood,
     primary = color(primary),
     secondary = color(secondary),
     tertiary = color(tertiary),
-    neutral = color(neutral),
 )
 
 private fun paletteScheme(
     palette: KomikkuPopularPalette,
     isDark: Boolean,
 ) = if (isDark) {
-    val background = palette.neutral.blend(Color.Black, if (palette.mood == KomikkuPaletteMood.DARK) 0.72f else 0.82f)
-    val surfaceContainer = palette.neutral.blend(Color.Black, 0.64f)
+    val neutral = palette.colors.minBy { it.luminance() }
+    val background = neutral.blend(Color.Black, if (palette.mood == KomikkuPaletteMood.DARK) 0.62f else 0.76f)
+    val surfaceContainer = background.blend(palette.secondary, 0.12f)
     darkColorScheme(
         primary = palette.primary.forDarkAccent(),
         onPrimary = palette.primary.forDarkAccent().contentColor(),
@@ -213,7 +220,7 @@ private fun paletteScheme(
         errorContainer = Color(0xFF93000A),
         onErrorContainer = Color(0xFFFFDAD6),
         outline = palette.secondary.blend(Color.White, 0.35f),
-        outlineVariant = palette.neutral.blend(Color.White, 0.18f),
+        outlineVariant = surfaceContainer.blend(Color.White, 0.18f),
         surfaceContainerLowest = background.blend(Color.Black, 0.18f),
         surfaceContainerLow = background.blend(Color.White, 0.04f),
         surfaceContainer = surfaceContainer,
@@ -221,8 +228,9 @@ private fun paletteScheme(
         surfaceContainerHighest = surfaceContainer.blend(Color.White, 0.13f),
     )
 } else {
-    val background = palette.neutral.blend(Color.White, 0.84f)
-    val surfaceContainer = palette.neutral.blend(Color.White, 0.72f)
+    val neutral = palette.colors.maxBy { it.luminance() }
+    val background = neutral.blend(Color.White, 0.86f)
+    val surfaceContainer = neutral.blend(Color.White, 0.72f)
     lightColorScheme(
         primary = palette.primary.forLightAccent(),
         onPrimary = palette.primary.forLightAccent().contentColor(),
@@ -251,7 +259,7 @@ private fun paletteScheme(
         errorContainer = Color(0xFFFFDAD6),
         onErrorContainer = Color(0xFF410002),
         outline = palette.secondary.blend(Color.Black, 0.18f),
-        outlineVariant = palette.neutral.blend(Color.Black, 0.16f),
+        outlineVariant = neutral.blend(Color.Black, 0.16f),
         surfaceContainerLowest = Color.White,
         surfaceContainerLow = surfaceContainer.blend(Color.White, 0.26f),
         surfaceContainer = surfaceContainer,

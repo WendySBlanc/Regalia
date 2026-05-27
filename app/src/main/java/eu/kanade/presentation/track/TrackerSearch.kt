@@ -110,6 +110,7 @@ fun TrackerSearch(
         topBar = {
             Column {
                 TopAppBar(
+                    modifier = Modifier.height(56.dp),
                     navigationIcon = {
                         IconButton(onClick = onDismissRequest) {
                             Icon(

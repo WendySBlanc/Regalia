@@ -25,7 +25,6 @@ fun TachiyomiTheme(
     BaseTachiyomiTheme(
         appTheme = appTheme ?: uiPreferences.appTheme().get(),
         isAmoled = amoled ?: uiPreferences.themeDarkAmoled().get(),
-        paletteIndex = uiPreferences.komikkuThemePalette().get(),
         content = content,
     )
 }
@@ -62,20 +61,19 @@ fun TachiyomiPreviewTheme(
     appTheme: AppTheme = AppTheme.KOMIKKU,
     isAmoled: Boolean = false,
     content: @Composable () -> Unit,
-) = BaseTachiyomiTheme(appTheme, isAmoled, 0, content)
+) = BaseTachiyomiTheme(appTheme, isAmoled, content)
 
 @Composable
 private fun BaseTachiyomiTheme(
     appTheme: AppTheme,
     isAmoled: Boolean,
-    paletteIndex: Int,
     content: @Composable () -> Unit,
 ) {
     val isDark = isSystemInDarkTheme()
     MaterialExpressiveTheme(
-        colorScheme = remember(appTheme, isDark, isAmoled, paletteIndex) {
+        colorScheme = remember(appTheme, isDark, isAmoled) {
             getThemeColorScheme(
-                paletteIndex = paletteIndex,
+                appTheme = appTheme,
                 isDark = isDark,
                 isAmoled = isAmoled,
             )
@@ -89,12 +87,12 @@ private fun BaseTachiyomiTheme(
 }
 
 private fun getThemeColorScheme(
-    paletteIndex: Int,
+    appTheme: AppTheme,
     isDark: Boolean,
     isAmoled: Boolean,
 ): ColorScheme {
     return KomikkuPopularColorScheme.getColorSchemeForPalette(
-        paletteIndex = paletteIndex,
+        paletteIndex = appTheme.coolorsPaletteIndex,
         isDark = isDark,
         isAmoled = isAmoled,
         overrideDarkSurfaceContainers = true,

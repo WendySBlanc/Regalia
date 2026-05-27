@@ -182,7 +182,7 @@ private fun LibrarySearchPill(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 54.dp)
+            .heightIn(min = 46.dp)
             .padding(end = 4.dp)
             .clickable(enabled = searchQuery == null) { onSearchQueryChange("") },
         shape = MaterialTheme.shapes.extraLarge,
@@ -213,7 +213,7 @@ private fun LibrarySearchPill(
                             maxLines = 1,
                             modifier = Modifier.weight(1f, false),
                             overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         if (title.numberOfManga != null) {
@@ -229,7 +229,7 @@ private fun LibrarySearchPill(
                         value = searchQuery,
                         onValueChange = onSearchQueryChange,
                         singleLine = true,
-                        textStyle = MaterialTheme.typography.bodyLarge.copy(
+                        textStyle = MaterialTheme.typography.bodyMedium.copy(
                             color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.Normal,
                         ),
@@ -240,7 +240,7 @@ private fun LibrarySearchPill(
                                     text = searchHint,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
-                                    style = MaterialTheme.typography.bodyLarge,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f),
                                 )
                             }
