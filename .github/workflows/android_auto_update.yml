@@ -34,7 +34,7 @@ jobs:
           set -euo pipefail
           commit_count=$(git rev-list --count HEAD)
           short_sha=$(git rev-parse --short HEAD)
-          tag_name="auto-r${commit_count}"
+          tag_name="r${commit_count}"
 
           echo "COMMIT_COUNT=$commit_count" >> "$GITHUB_OUTPUT"
           echo "SHORT_SHA=$short_sha" >> "$GITHUB_OUTPUT"
@@ -62,6 +62,15 @@ jobs:
             exit 1
           fi
 
+      - name: Restore signing key
+        shell: bash
+        env:
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.android"
+          printf '%s' "$SIGNING_KEY" | base64 --decode > "$HOME/.android/debug.keystore"
+
       - name: Set up JDK
         uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
         with:
@@ -74,8 +83,8 @@ jobs:
       - name: Check code format
         run: ./gradlew spotlessCheck
 
-      - name: Build release app
-        run: ./gradlew assembleRelease -Penable-updater
+      - name: Build preview app
+        run: ./gradlew assemblePreview -Penable-updater
 
       - name: Run unit tests
         id: unit_tests
@@ -88,28 +97,17 @@ jobs:
           name: test-report-${{ github.sha }}
           path: app/build/reports/tests/testReleaseUnitTest
 
-      - name: Sign APK
-        uses: r0adkll/sign-android-release@f30bdd30588842ac76044ecdbd4b6d0e3e813478
-        with:
-          releaseDirectory: app/build/outputs/apk/release
-          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-          alias: ${{ secrets.ALIAS }}
-          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
-        env:
-          BUILD_TOOLS_VERSION: '35.0.1'
-
       - name: Rename APKs
         shell: bash
         run: |
           set -euo pipefail
 
           tag_name="${{ steps.meta.outputs.TAG_NAME }}"
-          mv app/build/outputs/apk/release/app-universal-release-unsigned-signed.apk "Regalia-${tag_name}.apk"
-          mv app/build/outputs/apk/release/app-arm64-v8a-release-unsigned-signed.apk "Regalia-arm64-v8a-${tag_name}.apk"
-          mv app/build/outputs/apk/release/app-armeabi-v7a-release-unsigned-signed.apk "Regalia-armeabi-v7a-${tag_name}.apk"
-          mv app/build/outputs/apk/release/app-x86-release-unsigned-signed.apk "Regalia-x86-${tag_name}.apk"
-          mv app/build/outputs/apk/release/app-x86_64-release-unsigned-signed.apk "Regalia-x86_64-${tag_name}.apk"
+          mv app/build/outputs/apk/preview/app-universal-preview.apk "Regalia-${tag_name}.apk"
+          mv app/build/outputs/apk/preview/app-arm64-v8a-preview.apk "Regalia-arm64-v8a-${tag_name}.apk"
+          mv app/build/outputs/apk/preview/app-armeabi-v7a-preview.apk "Regalia-armeabi-v7a-${tag_name}.apk"
+          mv app/build/outputs/apk/preview/app-x86-preview.apk "Regalia-x86-${tag_name}.apk"
+          mv app/build/outputs/apk/preview/app-x86_64-preview.apk "Regalia-x86_64-${tag_name}.apk"
 
       - name: Create tag
         shell: bash
@@ -132,7 +130,7 @@ jobs:
           body: |
             Automatic Android update from `${{ steps.meta.outputs.SHORT_SHA }}`.
 
-            Install this APK once, then Regalia will check this repository for newer `auto-r...` releases.
+            Install this APK once, then Regalia will check this repository for newer `r...` preview releases.
           files: |
             Regalia-${{ steps.meta.outputs.TAG_NAME }}.apk
             Regalia-arm64-v8a-${{ steps.meta.outputs.TAG_NAME }}.apk
@@ -140,6 +138,6 @@ jobs:
             Regalia-x86-${{ steps.meta.outputs.TAG_NAME }}.apk
             Regalia-x86_64-${{ steps.meta.outputs.TAG_NAME }}.apk
           draft: false
-          prerelease: false
+          prerelease: true
           make_latest: true
           token: ${{ secrets.GITHUB_TOKEN }}
