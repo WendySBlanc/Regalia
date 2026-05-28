@@ -50,7 +50,7 @@ fun FloatingNavigationBar(
 
     val selectedContentColor = MaterialTheme.colorScheme.onSurface
     val inactiveContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-    val navTint = MaterialTheme.colorScheme.surface.copy(alpha = 0.58f)
+    val navTint = MaterialTheme.colorScheme.surface.copy(alpha = 0.42f)
     val showLabels = alwaysShowLabel || tabs.size <= 5
 
     Box(
@@ -63,7 +63,7 @@ fun FloatingNavigationBar(
                         style = HazeStyle(
                             backgroundColor = Color.Transparent,
                             tint = HazeDefaults.tint(navTint),
-                            blurRadius = 18.dp,
+                            blurRadius = 40.dp,
                         ),
                     )
                 } else {

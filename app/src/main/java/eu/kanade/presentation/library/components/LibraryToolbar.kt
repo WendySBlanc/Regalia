@@ -34,6 +34,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.chrisbanes.haze.HazeDefaults
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.hazeEffect
 import eu.kanade.presentation.components.AppBar
 import eu.kanade.presentation.components.AppBarActions
 import kotlinx.collections.immutable.persistentListOf
@@ -64,6 +68,7 @@ fun LibraryToolbar(
     onSearchQueryChange: (String?) -> Unit,
     scrollBehavior: TopAppBarScrollBehavior?,
     onInvalidateDownloadCache: (Context) -> Unit,
+    hazeState: HazeState? = null,
 ) = when {
     selectedCount > 0 -> LibrarySelectionToolbar(
         selectedCount = selectedCount,
@@ -87,6 +92,7 @@ fun LibraryToolbar(
         // SY <--
         scrollBehavior = scrollBehavior,
         onInvalidateDownloadCache = onInvalidateDownloadCache,
+        hazeState = hazeState,
     )
 }
 
@@ -107,10 +113,26 @@ private fun LibraryRegularToolbar(
     // SY <--
     scrollBehavior: TopAppBarScrollBehavior?,
     onInvalidateDownloadCache: (Context) -> Unit,
+    hazeState: HazeState?,
 ) {
     val context = LocalContext.current
     val pillAlpha = if (isSystemInDarkTheme()) 0.12f else 0.08f
+    val chromeTint = MaterialTheme.colorScheme.surface.copy(alpha = 0.42f)
     AppBar(
+        modifier = Modifier.then(
+            if (hazeState != null) {
+                Modifier.hazeEffect(
+                    state = hazeState,
+                    style = HazeStyle(
+                        backgroundColor = Color.Transparent,
+                        tint = HazeDefaults.tint(chromeTint),
+                        blurRadius = 36.dp,
+                    ),
+                )
+            } else {
+                Modifier
+            },
+        ),
         backgroundColor = Color.Transparent,
         titleContent = {
             val filterTint = if (hasFilters) MaterialTheme.colorScheme.active else LocalContentColor.current
@@ -187,7 +209,7 @@ private fun LibrarySearchPill(
             .padding(end = 4.dp)
             .clickable(enabled = searchQuery == null) { onSearchQueryChange("") },
         shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.72f),
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
     ) {
         Row(

@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
+import dev.chrisbanes.haze.HazeState
 import eu.kanade.core.preference.PreferenceMutableState
 import eu.kanade.tachiyomi.ui.library.LibraryItem
 import kotlinx.coroutines.delay
@@ -50,6 +51,7 @@ fun LibraryContent(
     getDisplayMode: (Int) -> PreferenceMutableState<LibraryDisplayMode>,
     getColumnsForOrientation: (Boolean) -> PreferenceMutableState<Int>,
     getItemsForCategory: (Category) -> List<LibraryItem>,
+    hazeState: HazeState? = null,
 ) {
     val layoutDirection = LocalLayoutDirection.current
     Box(
@@ -133,6 +135,7 @@ fun LibraryContent(
                         pagerState.animateScrollToPage(it)
                     }
                 },
+                hazeState = hazeState,
             )
         }
 
