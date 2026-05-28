@@ -1,6 +1,5 @@
 package eu.kanade.tachiyomi.ui.home
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -21,8 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -45,8 +42,6 @@ fun FloatingNavigationBar(
 ) {
     if (tabs.isEmpty()) return
 
-    val barColor = MaterialTheme.colorScheme.background.copy(alpha = 0f)
-    val dividerColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f)
     val selectedContentColor = MaterialTheme.colorScheme.onSurface
     val inactiveContentColor = MaterialTheme.colorScheme.onSurfaceVariant
     val showLabels = alwaysShowLabel || tabs.size <= 5
@@ -54,15 +49,6 @@ fun FloatingNavigationBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(barColor)
-            .drawBehind {
-                drawLine(
-                    color = dividerColor,
-                    start = Offset.Zero,
-                    end = Offset(size.width, 0f),
-                    strokeWidth = 1.dp.toPx(),
-                )
-            }
             .windowInsetsPadding(NavigationBarDefaults.windowInsets),
     ) {
         Row(
