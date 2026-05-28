@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
@@ -72,8 +71,6 @@ import tachiyomi.presentation.core.util.secondaryItemAlpha
 import tachiyomi.presentation.core.util.showSoftKeyboard
 
 const val SEARCH_DEBOUNCE_MILLIS = 250L
-
-private val CompactTopAppBarHeight = 56.dp
 
 @Composable
 fun AppBar(
@@ -156,7 +153,6 @@ fun AppBar(
         modifier = modifier,
     ) {
         TopAppBar(
-            modifier = Modifier.height(CompactTopAppBarHeight),
             navigationIcon = {
                 if (isActionMode) {
                     IconButton(onClick = onCancelActionMode) {
@@ -229,7 +225,7 @@ fun AppBarTitle(
                 text = it,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.titleMedium.copy(
+                style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 0.sp,
                 ),
@@ -394,7 +390,7 @@ fun SearchToolbar(
                 textStyle = MaterialTheme.typography.titleMedium.copy(
                     color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Normal,
-                    fontSize = 16.sp,
+                    fontSize = 18.sp,
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { searchAndClearFocus() }),
@@ -417,7 +413,7 @@ fun SearchToolbar(
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 style = MaterialTheme.typography.titleMedium.copy(
-                                    fontSize = 16.sp,
+                                    fontSize = 18.sp,
                                     fontWeight = FontWeight.Normal,
                                 ),
                             )
@@ -530,7 +526,7 @@ sealed interface AppBar {
 @Composable
 private fun Modifier.pixelIconButtonContainer(): Modifier {
     return this
-        .size(40.dp)
+        .size(46.dp)
         .clip(CircleShape)
         .background(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.92f))
 }
