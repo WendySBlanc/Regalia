@@ -111,6 +111,7 @@ private fun LibraryRegularToolbar(
     val context = LocalContext.current
     val pillAlpha = if (isSystemInDarkTheme()) 0.12f else 0.08f
     AppBar(
+        backgroundColor = Color.Transparent,
         titleContent = {
             val filterTint = if (hasFilters) MaterialTheme.colorScheme.active else LocalContentColor.current
             LibrarySearchPill(

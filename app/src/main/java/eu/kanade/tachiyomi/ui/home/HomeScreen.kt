@@ -39,6 +39,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.TabNavigator
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeSource
 import eu.kanade.core.preference.asState
 import eu.kanade.domain.source.service.SourcePreferences
 import eu.kanade.domain.ui.UiPreferences
@@ -94,6 +96,7 @@ object HomeScreen : Screen() {
         val alwaysShowLabel by remember {
             Injekt.get<UiPreferences>().bottomBarLabels().asState(scope)
         }
+        val hazeState = remember { HazeState() }
         // SY <--
 
         TabNavigator(
@@ -103,6 +106,7 @@ object HomeScreen : Screen() {
             // Provide usable navigator to content screen
             CompositionLocalProvider(LocalNavigator provides navigator) {
                 Scaffold(
+                    modifier = Modifier.hazeSource(state = hazeState),
                     startBar = {
                         if (isTabletUi()) {
                             NavigationRail {
@@ -142,6 +146,7 @@ object HomeScreen : Screen() {
                                     onSelect = { i -> tabNavigator.current = enabledTabs[i] },
                                     onReselect = { i -> scope.launch { enabledTabs[i].onReselect(navigator) } },
                                     badge = { tab -> NavBarBadge(tab) },
+                                    hazeState = hazeState,
                                 )
                             }
                         }

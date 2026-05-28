@@ -28,6 +28,7 @@ import tachiyomi.presentation.core.components.Pill
 
 @Composable
 internal fun LibraryTabs(
+    modifier: Modifier = Modifier,
     categories: List<Category>,
     pagerState: PagerState,
     getItemCountForCategory: (Category) -> Int?,
@@ -35,7 +36,7 @@ internal fun LibraryTabs(
 ) {
     val currentPageIndex = pagerState.currentPage.coerceAtMost(categories.lastIndex)
     LazyRow(
-        modifier = Modifier
+        modifier = modifier
             .zIndex(2f)
             .padding(top = 8.dp, bottom = 10.dp),
         contentPadding = PaddingValues(horizontal = 16.dp),

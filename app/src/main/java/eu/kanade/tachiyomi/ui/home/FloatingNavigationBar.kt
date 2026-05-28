@@ -20,10 +20,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
+import dev.chrisbanes.haze.HazeDefaults
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.hazeEffect
 import eu.kanade.presentation.util.Tab
 import tachiyomi.presentation.core.util.pressFeedback
 
@@ -39,16 +44,32 @@ fun FloatingNavigationBar(
     onReselect: (Int) -> Unit,
     modifier: Modifier = Modifier,
     badge: @Composable (Tab) -> Unit = {},
+    hazeState: HazeState? = null,
 ) {
     if (tabs.isEmpty()) return
 
     val selectedContentColor = MaterialTheme.colorScheme.onSurface
     val inactiveContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val navTint = MaterialTheme.colorScheme.surface.copy(alpha = 0.58f)
     val showLabels = alwaysShowLabel || tabs.size <= 5
 
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .then(
+                if (hazeState != null) {
+                    Modifier.hazeEffect(
+                        state = hazeState,
+                        style = HazeStyle(
+                            backgroundColor = Color.Transparent,
+                            tint = HazeDefaults.tint(navTint),
+                            blurRadius = 18.dp,
+                        ),
+                    )
+                } else {
+                    Modifier
+                },
+            )
             .windowInsetsPadding(NavigationBarDefaults.windowInsets),
     ) {
         Row(
