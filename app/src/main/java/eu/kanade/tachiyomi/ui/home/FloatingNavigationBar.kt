@@ -69,12 +69,12 @@ fun FloatingNavigationBar(
                 } else {
                     Modifier
                 },
-            )
-            .windowInsetsPadding(NavigationBarDefaults.windowInsets),
+            ),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .windowInsetsPadding(NavigationBarDefaults.windowInsets)
                 .height(if (showLabels) YouTubeBarHeight else YouTubeCompactBarHeight)
                 .padding(horizontal = 4.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
