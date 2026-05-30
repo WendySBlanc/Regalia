@@ -6,10 +6,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
@@ -53,7 +57,7 @@ fun FloatingNavigationBar(
     val navTint = MaterialTheme.colorScheme.surface.copy(alpha = 0.42f)
     val showLabels = alwaysShowLabel || tabs.size <= 5
 
-    Box(
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .then(
@@ -69,12 +73,12 @@ fun FloatingNavigationBar(
                 } else {
                     Modifier
                 },
-            ),
+            )
+            .windowInsetsPadding(NavigationBarDefaults.windowInsets.only(WindowInsetsSides.Horizontal)),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .windowInsetsPadding(NavigationBarDefaults.windowInsets)
                 .height(if (showLabels) YouTubeBarHeight else YouTubeCompactBarHeight)
                 .padding(horizontal = 4.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -128,6 +132,11 @@ fun FloatingNavigationBar(
                 }
             }
         }
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsBottomHeight(NavigationBarDefaults.windowInsets),
+        )
     }
 }
 
